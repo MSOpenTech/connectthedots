@@ -1,3 +1,4 @@
+REM SCPRPI.cmd
 @echo off
 set puttydir=d:\software\putty\
 set prjdir=..\
