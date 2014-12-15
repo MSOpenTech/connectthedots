@@ -22,12 +22,12 @@
 //  THE SOFTWARE.
 //  ---------------------------------------------------------------------------------
 
-//#define SIMULATEDATA
-//#define LOG_MESSAGE_RATE
+// #define DEBUG
+// #define SIMULATEDATA
+// #define LOG_MESSAGE_RATE
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Trace = System.Diagnostics.Trace;
 using System.IO.Ports;
 using System.Text;
 using System.Threading;
@@ -38,13 +38,22 @@ using Amqp.Types;
 
 using Newtonsoft.Json;
 
+
+// include NLog logging library. See https://github.com/NLog/NLog/wiki/Tutorial for information on adding NLog to project file and configuring NLog.conf
+using NLog;
+
 namespace RaspberryPiGateway
 {
 	class MainClass
 	{
+
+        // Set up logging
+        private static Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
 		public static int Main (string[] args)
 		{
-			var main = new MainClass ();
+
+            var main = new MainClass ();
 
 			int result = main.Parse (args);
 			if (result != 0)
@@ -58,7 +67,8 @@ namespace RaspberryPiGateway
 #region Commandline Parameters
 
         string deviceId = Guid.NewGuid().ToString ("N"); // Unique identifier for the device
-		string deviceDisplayName = "RPi 001 MS Open Tech";   // Human readable name for the device
+		string deviceDisplayName = "OpenTech";   // Will store human readable name for the device, to be displayed in Azure dashboard.
+        string deviceAddress = ""; // Will store IP address of device
 
         // AMQP address string syntax is an example for Azure Service Bus/Event Hub
         // Any AMQP broker can be used by using the proper address/target
@@ -72,7 +82,7 @@ namespace RaspberryPiGateway
 #else
         string serialPortName ="COM10";
 #endif
-        SourceLevels traceLevel = SourceLevels.Error;
+
 #endregion
 
         Dictionary<string, object> lastDataSample = null;
@@ -83,13 +93,6 @@ namespace RaspberryPiGateway
 
 		int Run ()
 		{
-            System.Diagnostics.Trace.Listeners.Add(new ConsoleTraceListener() 
-            {
-                TraceOutputOptions = TraceOptions.DateTime,
-                Filter = new EventTypeFilter(traceLevel),
-            });
-
-            Amqp.Trace.TraceListener = (f, o) => Trace.WriteLine(String.Format(f, o));
 
 			var sampleThread = new Thread (SampleLoop);
 			sampleThread.Start ();
@@ -100,6 +103,7 @@ namespace RaspberryPiGateway
 
 			do
 			{
+
 #if LOG_MESSAGE_RATE
                 var stopWatch = Stopwatch.StartNew();
 #endif
@@ -119,8 +123,8 @@ namespace RaspberryPiGateway
 				}
 				catch (Exception e)
 				{
-					Trace.TraceError("Error connecting or sending message: {0}", e.Message);
-				}
+                    logger.Error("Error connecting or sending message: {0}", e.Message);
+                }
 				finally
 				{
 					if (sender!=null) sender.Close ();
@@ -129,7 +133,9 @@ namespace RaspberryPiGateway
 				}
 				if (bForever)
 				{
-					Trace.TraceInformation("Restarting send loop...");
+#if DEBUG
+                    logger.Info("Restarting send loop...");
+#endif
 					Thread.Sleep (sendFrequency); // Wait until next sample
 				}
 
@@ -172,7 +178,6 @@ namespace RaspberryPiGateway
                 outDictionary["time"] = message.Properties.CreationTime;
                 outDictionary["from"] = deviceId; // Originating device
                 outDictionary["dspl"] = deviceDisplayName;      // Display name for originating device
-
                 message.Properties.ContentType = "text/json";
                 message.Body = new Data() { Binary = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(outDictionary)) };
 #else
@@ -209,14 +214,16 @@ namespace RaspberryPiGateway
 		{
 			if (outcome is Accepted)
 			{
-				Trace.TraceInformation(String.Format ("Sent message {0} - {1}", message.ApplicationProperties ["time"], message.Properties.Subject));
+#if DEBUG
+                logger.Info("Sent message {0} - {1}", message.ApplicationProperties["time"], message.Properties.Subject);
+#endif
 #if LOG_MESSAGE_RATE
                 g_messageCount++;
 #endif
 			}
 			else
 			{
-				Trace.TraceError(String.Format ("Error sending message {0} - {1}, outcome {2}", message.ApplicationProperties ["time"], outcome, message.Properties.Subject));
+                logger.Error("Error sending message {0} - {1}, outcome {2}", message.ApplicationProperties["time"], outcome, message.Properties.Subject);
 			}
 		}
 
@@ -234,7 +241,9 @@ namespace RaspberryPiGateway
 					serialPort = new SerialPort (serialPortName, 9600);
 					serialPort.DtrEnable = true;
 					serialPort.Open ();
-					Trace.TraceInformation ("Opened Serial Port {0}", serialPortName);
+#if DEBUG
+                    logger.Info("Opened Serial Port {0}", serialPortName);
+#endif
 #endif
                     while (MAINSWITCH)
 					{
@@ -255,23 +264,26 @@ namespace RaspberryPiGateway
                             if (valueDict != null)
                             {
                                 Interlocked.Exchange(ref lastDataSample, valueDict);
-
-                                Trace.TraceInformation("Parsed data from serial port as: {0}", JsonConvert.SerializeObject(valueDict));
+#if DEBUG
+                                logger.Info("Parsed data from serial port as: {0}", JsonConvert.SerializeObject(valueDict));
+#endif
                             }
 						}
 						catch (Exception e)
 						{
-							Trace.TraceError("Error parsing data from serial port: {0}, Data: {1}", e.Message, valuesJson);
+                            logger.Error("Error parsing data from serial port: {0}, Data: {1}", e.Message, valuesJson);
 						}
 						Thread.Sleep (Math.Min(100, sendFrequency));
 					}
 				}
 				catch (Exception e)
 				{
-					Trace.TraceError("Error processing data from serial port: {0} ", e.Message);
+                    logger.Error("Error processing data from serial port: {0} ", e.Message);
 					if (serialPort != null && serialPort.IsOpen)
 					{
-						Trace.TraceInformation("Closing Serial Port");
+#if DEBUG
+                        logger.Info("Closing Serial Port");
+#endif
 						serialPort.Close ();
 						serialPort = null;
 					}
@@ -284,7 +296,6 @@ namespace RaspberryPiGateway
 
 		int Parse (string[] args)
 		{
-            Amqp.Trace.TraceLevel = Amqp.TraceLevel.Error; 
 
             bool bParseError = false;
 			for (int i = 0; i < args.Length; i++)
@@ -293,34 +304,6 @@ namespace RaspberryPiGateway
 				{
 					case "-forever":
 						bForever = true;
-						break;
-					case "-tracelevel":
-						bool bEndTraceLevel = false;
-                        while (!bEndTraceLevel && ++i < args.Length)
-                        {
-                            switch (args [i].ToLowerInvariant ())
-                            {
-                                case "verbose":
-                                    traceLevel |= SourceLevels.Verbose;
-                                    break;
-                                case "information":
-                                    traceLevel |= SourceLevels.Information;
-                                    break;
-                                case "warning":
-                                    traceLevel |= SourceLevels.Warning;
-                                    break;
-                                case "error":
-                                    traceLevel |= SourceLevels.Error;
-                                    break;
-                                case "frame":
-                                    Amqp.Trace.TraceLevel |= Amqp.TraceLevel.Frame;
-                                    break;
-                                default:
-                                    bEndTraceLevel = true;
-                                    i--;
-                                    break;
-                            }
-                        }
 						break;
 					case "-address":
 						i++;
@@ -404,7 +387,7 @@ namespace RaspberryPiGateway
 
 			if (bParseError)
 			{
-                Console.WriteLine("Usage: RaspberryPiGateway -forever | -tracelevel verbose information error frame warning | -deviceid <deviceid> | -devicename <devicename> | -serial <serial port name> | -frequency <frequency in ms> | -address <address> | -target <target>");
+                Console.WriteLine("Usage: RaspberryPiGateway -forever | -deviceid <deviceid> | -devicename <devicename> | -serial <serial port name> | -frequency <frequency in ms> | -address <address> | -target <target>");
 				return 1;
 			}
 			return 0;

@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Arduino", "Arduino", "{4A346316-F6D7-4999-99E0-835C612B703E}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ArduinoUNOWeatherShield", "ArduinoUNOWeatherShield", "{4A346316-F6D7-4999-99E0-835C612B703E}"
 	ProjectSection(SolutionItems) = preProject
 		Devices\Arduino\AnalogReadSerial\AnalogReadSerial.ino = Devices\Arduino\AnalogReadSerial\AnalogReadSerial.ino
 		Devices\Arduino\WeatherShieldJson\WeatherShieldJson.ino = Devices\Arduino\WeatherShieldJson\WeatherShieldJson.ino
@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RaspberryPiGateway", "Devic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConnectTheDotsWebSite", "Azure\ConnectTheDotsWebSite\ConnectTheDotsWebSite.csproj", "{DA43D6B7-5A31-4FEA-BBCE-3A8FEAE0B0A2}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "StreamingAnalyticsQueries", "Azure\StreamingAnalyticsQueries", "{1415BD4B-0CCD-4F2D-A56F-879577605885}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "StreamingAnalyticsQueries", "StreamingAnalyticsQueries", "{1415BD4B-0CCD-4F2D-A56F-879577605885}"
 	ProjectSection(SolutionItems) = preProject
 		Azure\StreamingAnalyticsQueries\Aggregates.sql = Azure\StreamingAnalyticsQueries\Aggregates.sql
 		Azure\StreamingAnalyticsQueries\Alert.sql = Azure\StreamingAnalyticsQueries\Alert.sql
@@ -24,7 +24,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConnectTheDotsCloudDeploy",
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{CE0759E4-E699-4FC3-88FF-36673ACF7BD4}"
 	ProjectSection(SolutionItems) = preProject
-		Connect the Dots - Quick Start.docx = Connect the Dots - Quick Start.docx
 		license.txt = license.txt
 		notice.txt = notice.txt
 	EndProjectSection
