@@ -354,7 +354,7 @@ function UpdateD3Charts(D3_set, chart_name)
             .call(xAxis);
 
     line = d3.svg.line()
-            .interpolate("basis")
+            .interpolate("linear")
             .x(function (d) { return x(d.time); })
             .y(function (d) { return y(d.data); });    
 
@@ -468,7 +468,7 @@ $(document).ready(function () {
         var device = $(this).text();
         if (websocket != null) {            
 
-
+            $('#loading').show();
             ClearD3Charts();
 
             if (device == 'All') {                
