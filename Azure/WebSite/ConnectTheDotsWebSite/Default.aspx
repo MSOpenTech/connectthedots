@@ -225,7 +225,7 @@
                     </div>
                 </div>
             </div>
-
+            </div>
             <div class="big-block" style="width: 1000px">
                 <h3>Real Time Events</h3>
 
