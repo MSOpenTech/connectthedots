@@ -18,7 +18,7 @@ To go through the below steps, make sure you have all the following software ins
     * Password: [leave suggested password]
 * Publish (you might need to install WebDeploy extension if you are having an error stating that the Web deployment task failed. You can find WebDeploy [here](http://www.iis.net/downloads/microsoft/web-deploy)).
 
-##Websockets setting
+##(Optional) Websockets setting
 * Enable WebSockets for the new Azure Web site
     * Browse to https://manage.windowsazure.com and select your Azure Web Site.
     * Click on the Configure tag. Then set WebSockets to On and Click "Save"

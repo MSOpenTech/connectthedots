@@ -33,7 +33,7 @@ namespace ConnectTheDotsWebSite
     {
         public static ICollection<string> GetSensorList()
         {
-            var sensors = new List<string>(WebSocketEventProcessor.g_devices.Keys);
+            var sensors = new List<string>(EventProcessor.g_devices.Keys);
             sensors.Insert(0, "All");
             sensors.Insert(0, "None");
             return sensors;

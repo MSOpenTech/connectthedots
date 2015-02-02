@@ -70,6 +70,8 @@ color.domain(sensorNames);
 
 var sss = null;
 
+var dataHub;
+
 // Create the chart(s) that will be used to
 // display the live data.  We use the D3.js
 // library to establish SVG elements that will
@@ -464,9 +466,11 @@ $(document).ready(function () {
     //  dataset
     //
 
+    initSignalR();
+
     $('#sensorList').on('click', 'li', function () {
         var device = $(this).text();
-        if (websocket != null) {            
+        if (dataHub != null) {
 
             $('#loading').show();
             ClearD3Charts();
@@ -474,10 +478,10 @@ $(document).ready(function () {
             if (device == 'All') {                
 
                 var c = { MessageType: "LiveDataSelection", DeviceName: "clear" };
-                websocket.send(JSON.stringify(x));
+                dataHub.server.send(JSON.stringify(x));
 
                 var x = { MessageType: "LiveDataSelection", DeviceName: device };
-                websocket.send(JSON.stringify(x));
+                dataHub.server.send(JSON.stringify(x));
 
                 $('#sensorList li').each(function () {
                     //this now refers to each li
@@ -520,7 +524,7 @@ $(document).ready(function () {
                 }
 
                 var x = { MessageType: "LiveDataSelection", DeviceName: "clear" };
-                websocket.send(JSON.stringify(x));
+                dataHub.server.send(JSON.stringify(x));
 
                 $('#sensorList li').each(function () {
 
@@ -528,7 +532,7 @@ $(document).ready(function () {
 
                     if ($(this).hasClass('selected')) {
                         var x = { MessageType: "LiveDataSelection", DeviceName: $(this).text() };
-                        websocket.send(JSON.stringify(x));
+                        dataHub.server.send(JSON.stringify(x));
                     }
                 });
             }
@@ -604,237 +608,207 @@ $(document).ready(function () {
     });
 
     table.order([0, 'desc']);
+});
 
+// Deal with message received on WebSocket
+function processMessageFromServer(eventObject) {
 
-    // Set up websocket client
+    // initialize the page with all sensors
 
-    var sss = (window.location.protocol.indexOf('s') > 0 ? "s" : "");    
-    
-    var uri = 'ws'+ sss +'://' + window.location.host + '/api/websocketconnect?clientId=none';
+    if (receivedFirstMessage == false) {
 
-    //var uri = 'ws' + sss + '://' + 'connectthedots.msopentech.com' + '/api/websocketconnect?clientId=none';
+        ClearD3Charts();
+        var x = { MessageType: "LiveDataSelection", DeviceName: 'All' };
 
-    websocket = new WebSocket(uri);
+        dataHub.server.send(JSON.stringify(x));
+        receivedFirstMessage = true;
 
-    $('#messages').prepend('<div> Connecting to ' + uri + '<div>');
+        // make 'All' the active sensor
 
-    websocket.onopen = function () {
-        $('#messages').prepend('<div>Connected.</div>');
+        var j = $('#sensorList li').eq(0);
+        j.css('color', color('avg'));
+        j.css('font-weight', 'bold');
     }
 
-    websocket.onerror = function (event) {
-        console.log(event);
-        $('#messages').prepend('<div>ERROR ' + event.error + '</div>');
-    }
+    // Seems like we have valid data
+    try {
 
-    // Deal with message received on WebSocket
-    websocket.onmessage = function (event) {
-        try {
-            // Parse the JSON package
-            var eventObject = JSON.parse(event.data);
-        }
-        catch (e) {
-            $('#messages').prepend('<div>Malformed message: ' + event.data + "</div>");
-        }
+        if (eventObject.dspl != null) {
 
-        // initialize the page with all sensors
+            // Remove any sensors that have gone stale
+            /*$('#sensorList li').each(function () {
 
-        if (receivedFirstMessage == false) {
+                var t = $(this).text();
+                var found = false;
+                for (var i = 0; i < D3_tmp.length; i++) {
+                    if (D3_tmp[i].name == t) {
+                        found = true;
+                        break;
+                    }
+                }
 
-            ClearD3Charts();
-            var x = { MessageType: "LiveDataSelection", DeviceName: 'All' };
-
-            websocket.send(JSON.stringify(x));
-            receivedFirstMessage = true;
-
-            // make 'All' the active sensor
-
-            var j = $('#sensorList li').eq(0);
-            j.css('color', color('avg'));
-            j.css('font-weight', 'bold');
-        }
-
-        // Seems like we have valid data
-        try {
-
-            if (eventObject.dspl != null) {
-
-                // Remove any sensors that have gone stale
-                /*$('#sensorList li').each(function () {
-
-                    var t = $(this).text();
-                    var found = false;
-                    for (var i = 0; i < D3_tmp.length; i++) {
-                        if (D3_tmp[i].name == t) {
+                if (found == false) {
+                    for (var i = 0; i < D3_hum.length; i++) {
+                        if (D3_hum[i].name == t) {
                             found = true;
                             break;
                         }
                     }
-
-                    if (found == false) {
-                        for (var i = 0; i < D3_hum.length; i++) {
-                            if (D3_hum[i].name == t) {
-                                found = true;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (found == false) {
-                        $(this).remove();
-                    }
-                    
-                });*/
-
-                // if we have a new sensor, add it to the list
-                var exists = true;
-                if ($('#sensorList').data(eventObject.dspl) == undefined) {
-                    exists = false;
                 }
 
-                if (exists == false){
-
-                    var ul = document.getElementById("sensorList");
-                    var li = document.createElement("li");
-                    li.appendChild(document.createTextNode(eventObject.dspl));
-                    ul.appendChild(li);
-
-                    $('#sensorList').data(eventObject.dspl, eventObject.dspl);
-
+                if (found == false) {
+                    $(this).remove();
                 }
+                
+            });*/
+
+            // if we have a new sensor, add it to the list
+            var exists = true;
+            if ($('#sensorList').data(eventObject.dspl) == undefined) {
+                exists = false;
             }
 
-            // If the message is an alert, we need to display it in the datatable
+            if (exists == false) {
+
+                var ul = document.getElementById("sensorList");
+                var li = document.createElement("li");
+                li.appendChild(document.createTextNode(eventObject.dspl));
+                ul.appendChild(li);
+
+                $('#sensorList').data(eventObject.dspl, eventObject.dspl);
+
+            }
+        }
+
+        // If the message is an alert, we need to display it in the datatable
             if (eventObject.alerttype != null) { // && isBulking == false) {
-                var table = $('#alertTable').DataTable();
-                var time = new Date(eventObject.timestart);
+            var table = $('#alertTable').DataTable();
+            var time = new Date(eventObject.timestart);
 
-                // Log the alert in the rawalerts div
-                $('#rawalerts').prepend('<div>' + time + ': ' + eventObject.dsplalert + ' ' + eventObject.alerttype + ' ' + eventObject.message + '</div>');
-                $('#rawalerts').contents().filter(':gt(20)').remove();
+            // Log the alert in the rawalerts div
+            $('#rawalerts').prepend('<div>' + time + ': ' + eventObject.dsplalert + ' ' + eventObject.alerttype + ' ' + eventObject.message + '</div>');
+            $('#rawalerts').contents().filter(':gt(20)').remove();
 
-                // Check if we already have this one in the table already to prevent duplicates
-                var indexes = table.rows().eq(0).filter(function (rowIdx) {
-                    if (
-                        table.cell(rowIdx, 0).data().getTime() == time.getTime()
-                        && table.cell(rowIdx, 1).data() == eventObject.dsplalert
-                        && table.cell(rowIdx, 2).data() == eventObject.alerttype
-                    ) {
-                        return true;
-                    }
-                    return false;
-                });
+            // Check if we already have this one in the table already to prevent duplicates
+            var indexes = table.rows().eq(0).filter(function (rowIdx) {
+                if (
+                    table.cell(rowIdx, 0).data().getTime() == time.getTime()
+                    && table.cell(rowIdx, 1).data() == eventObject.dsplalert
+                    && table.cell(rowIdx, 2).data() == eventObject.alerttype
+                ) {
+                    return true;
+                }
+                return false;
+            });
 
-                // The alert is a new one, lets display it
-                if (indexes.length == 0) {
-                    // For performance reasons, we want to limit the number of items in the table to a max of 20. 
-                    // We will remove the oldest from the list
-                    if (table.data().length > 19) {
-                        // Search for the oldest time in the list of alerts
-                        var minTime = table.data().sort(
-                            function (a, b) {
-                                return (a[0] > b[0]) - (a[0] < b[0])
-                            }
-                            )[0][0];
-                        // Delete the oldest row
-                        table.rows(
-                            function (idx, data, node) {
-                                return data[0].getTime() == minTime.getTime();
-                            }
-                        ).remove();
-                    }
+            // The alert is a new one, lets display it
+            if (indexes.length == 0) {
+                // For performance reasons, we want to limit the number of items in the table to a max of 20. 
+                // We will remove the oldest from the list
+                if (table.data().length > 19) {
+                    // Search for the oldest time in the list of alerts
+                    var minTime = table.data().sort(
+                        function (a, b) {
+                            return (a[0] > b[0]) - (a[0] < b[0])
+                        }
+                        )[0][0];
+                    // Delete the oldest row
+                    table.rows(
+                        function (idx, data, node) {
+                            return data[0].getTime() == minTime.getTime();
+                        }
+                    ).remove();
+                }
 
-                    // Add the new alert to the table
-                    var message = 'message';
-                    if (eventObject.message != null) message = eventObject.message;
-                    table.row.add([
-                        time,
-                        eventObject.dsplalert,
-                        eventObject.alerttype,
-                        message
-                    ]).draw();
+                // Add the new alert to the table
+                var message = 'message';
+                if (eventObject.message != null) message = eventObject.message;
+                table.row.add([
+                    time,
+                    eventObject.dsplalert,
+                    eventObject.alerttype,
+                    message
+                ]).draw();
+            }
+        }
+        else {
+
+            // Message received is not an alert. let's display it in the charts
+
+            if (eventObject.tempavg != null) {
+
+                if (eventObject.time != null) {
+                    AddToD3(D3_tmp, "Temperature", "avg", eventObject.tempavg, eventObject.time);
+                }
+                if (!isBulking) {
+                    PruneOldD3Data(D3_tmp, "Temperature");
+                    UpdateD3Charts(D3_tmp, "Temperature");
+                }
+                else {
+
+                    $('#loading-sensor').text("avg");
+                }
+            }
+            else if (eventObject.bulkData != null) {
+
+                // Don't update while receiving bulk data.  It will
+                // cause the browser to (usually) freeze
+
+                if (eventObject.bulkData == true) {
+                    $('#loading').show();
+                    isBulking = true;
+                    ClearD3Charts();
+                }
+                else {
+
+                    PruneOldD3Data(D3_tmp, "Temperature");
+                    PruneOldD3Data(D3_hum, "Humidity");
+
+                    UpdateD3Charts(D3_tmp, "Temperature");
+                    UpdateD3Charts(D3_hum, "Humidity");
+
+                    $('#loading').hide();
+
+                    isBulking = false;
                 }
             }
             else {
-
-                // Message received is not an alert. let's display it in the charts
-
-                if (eventObject.tempavg != null) {                    
+                // the message is data for the charts
+                // we make sure the dspl field is in the message, meaning the data is coming from a known device or service
+                if (eventObject.dspl != null) {
 
                     if (eventObject.time != null) {
-                        AddToD3(D3_tmp, "Temperature", "avg", eventObject.tempavg, eventObject.time);
+                        AddToD3(D3_tmp, "Temperature", eventObject.dspl, eventObject.temp, eventObject.time);
+                        AddToD3(D3_hum, "Humidity", eventObject.dspl, eventObject.hmdt, eventObject.time);
                     }
                     if (!isBulking) {
-                        PruneOldD3Data(D3_tmp, "Temperature");
-                        UpdateD3Charts(D3_tmp, "Temperature");
-                    }
-                    else {
-                        
-                        $('#loading-sensor').text("avg");
-                    }
-                }
-                else if (eventObject.bulkData != null) {
-
-                    // Don't update while receiving bulk data.  It will
-                    // cause the browser to (usually) freeze
-
-                    if (eventObject.bulkData == true) {
-                        $('#loading').show();
-                        isBulking = true;
-                        ClearD3Charts();
-                    }
-                    else {
-
                         PruneOldD3Data(D3_tmp, "Temperature");
                         PruneOldD3Data(D3_hum, "Humidity");
 
                         UpdateD3Charts(D3_tmp, "Temperature");
                         UpdateD3Charts(D3_hum, "Humidity");
-
-                        $('#loading').hide();
-
-                        isBulking = false;
-                    }
-                }
-                else {
-                    // the message is data for the charts
-                    // we make sure the dspl field is in the message, meaning the data is coming from a known device or service
-                    if (eventObject.dspl != null) {
-                        
-                        if (eventObject.time != null) {
-                            AddToD3(D3_tmp, "Temperature", eventObject.dspl, eventObject.temp, eventObject.time);
-                            AddToD3(D3_hum, "Humidity", eventObject.dspl, eventObject.hmdt, eventObject.time);
-                        }
-                        if (!isBulking) {
-                            PruneOldD3Data(D3_tmp, "Temperature");
-                            PruneOldD3Data(D3_hum, "Humidity");
-
-                            UpdateD3Charts(D3_tmp, "Temperature");
-                            UpdateD3Charts(D3_hum, "Humidity");
-                        } else {
-                            $('#loading-sensor').text(eventObject.dspl);
-                        }
+                    } else {
+                        $('#loading-sensor').text(eventObject.dspl);
                     }
                 }
             }
         }
-        catch (e) {           
-        
-            $('#messages').prepend('<div>Error processing message: ' + e.message + "</div>");
-        }
     }
+    catch (e) {
 
-});
+        $('#messages').prepend('<div>Error processing message: ' + e.message + "</div>");
+    }
+}
 
 
 function SensorSelectionChanged(dropDown) {
     var newSensor = dropDown.value;
-    if (websocket != null) {
+    if (dataHub != null) {
 
         ClearD3Charts();
 
         var x = { MessageType: "LiveDataSelection", DeviceName: newSensor };
-        websocket.send(JSON.stringify(x));        
+        dataHub.server.send(JSON.stringify(x));
     }
     
 }
@@ -847,4 +821,24 @@ function ShowHide(tHtml) {
             tHtml.style.display = '';
     }
 }
+
+function initSignalR() {
+    dataHub = $.connection.DataHub;
+
+    //We have to handle at least 1 event before starting the hub
+    dataHub.client.onmessage = function (msg) {
+        console.log('Message from server: ' + msg);
+        processMessageFromServer(msg);
+    }
+
+    $.connection.hub.start().done(function () {
+        $('#messages').prepend('<div>Connected.</div>');
+        console.log('Connected to SignalR hub')
+    }).fail(function (event) {
+        $('#messages').prepend('<div>ERROR ' + event.error + '</div>');
+        console.log('Failed to connect to SignalR hub');
+    });
+}
+
+
 

@@ -37,7 +37,7 @@ using Newtonsoft.Json;
 
 namespace ConnectTheDotsWebSite
 {
-    class WebSocketEventProcessor : IEventProcessor
+    class EventProcessor : IEventProcessor
     {
         // Keep track of devices seen, and the last message received for each device
         public static ConcurrentDictionary<string, IDictionary<string, object>> g_devices =
@@ -112,12 +112,12 @@ namespace ConnectTheDotsWebSite
                                 deviceName = messagePayload["dspl"] as string;
                                 if (deviceName != null)
                                 {
-                                    WebSocketEventProcessor.g_devices.TryAdd(deviceName, messagePayload);
+                                    EventProcessor.g_devices.TryAdd(deviceName, messagePayload);
                                 }
                             }
 
                             // Notify clients
-                            MyWebSocketHandler.SendToClients(messagePayload);
+                            DataHub.SendToClients(messagePayload);
 
                             // Buffer messages so we can resend them to clients that connect later
                             // or when a client requests data for a different device
@@ -220,7 +220,7 @@ namespace ConnectTheDotsWebSite
             Trace.TraceError("Exception received from EventHostProcessor: {0} - {1}, {2}", e.Exception, e.Action, sender);
         }
 
-        static List<WebSocketEventProcessor> g_processors = new List<WebSocketEventProcessor>();
+        static List<EventProcessor> g_processors = new List<EventProcessor>();
 
         // Retrieve buffered messages from all EH partitions (= processor instances)
         // Note: This needs to be partitioned and/or turned into a distributed call/cache 
