@@ -8,6 +8,21 @@ Make sure you have all software installed and necessary subscriptions as indicat
 1. Access to the [Azure Streaming Analytics Preview](https://account.windowsazure.com/PreviewFeatures)
 1. Visual Studio 2013 – [Community Edition](http://www.visualstudio.com/downloads/download-visual-studio-vs)
 
+In addition, you must have run the AzurePrep program discussed in that section, as it creates the event hubs from which the website pulls data, as well as populates the web.config file that is published for the Azure website. If you already have the event hubs and are simply republishing a website, you can just edit the web.config file manually before publishing. To do this, open ConnectTheDots\Azure\WebSite\ConnectTheDotsWebSite\web.config and find the lines
+
+    <add key="Microsoft.ServiceBus.EventHubDevices" value="ehdevices" />
+    <add key="Microsoft.ServiceBus.EventHubAlerts" value="ehalerts" />
+    <add key="Microsoft.ServiceBus.ConnectionString" value="Endpoint=sb://{namespace-name}.servicebus.windows.net/;SharedSecretIssuer=owner;SharedSecretValue={key}" />
+    <add key="Microsoft.ServiceBus.ConnectionStringDevices" value="Endpoint=sb://{namespace-name}.servicebus.windows.net/;SharedAccessKeyName=WebSite;SharedAccessKey={key}" />
+    <add key="Microsoft.ServiceBus.ConnectionStringAlerts" value="Endpoint=sb://{namespace-name}.servicebus.windows.net/;SharedAccessKeyName=WebSite;SharedAccessKey={key}" />
+    <add key="Microsoft.Storage.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName={storageaccount};AccountKey={key}" />
+
+You will need to replace the last four connection strings with the appropriate values for your subscription, found in [https://manage.windowsazure.com](https://manage.windowsazure.com) as follows:
+
+1. **Storage.ConnectionString**. Select Storage from left nav menu, highlight the storage account created earlier, click on Manage Access Keys at the bottom of the screen, and copy the Primary Access Key.
+2. **ServiceBus.ConnectionString**. Select Service Bus from the left nav menu, highlight the Namespace Name created earlier, click on Connection Information at the bottom of the screen, and copy the RootManagedSharedAccessKey.
+3. **ServiceBus.ConnectionStringDevices**. Select Service Bus from the left nav menu, select the Namespace Name created earlier, highlight ehdevices, click on Connection information at the bottom of the screen, and copy the WebSite Connection string.
+4. **ServiceBus.ConnectionStringAlerts**. Select Service Bus from the left nav menu, select the Namespace Name created earlier, highlight ehalerts, click on Connection information at the bottom of the screen, and copy the WebSite Connection string.
 
 ## Publish the Azure Website ##
 
