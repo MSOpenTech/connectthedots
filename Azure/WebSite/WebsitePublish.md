@@ -27,4 +27,4 @@ Make sure you have all software installed and necessary subscriptions as indicat
 	
 ##Running the site
 * Open the site in a browser to verify it has deployed correctly. 
-    * At the bottom of the page you should see “Connected.”. If you see “ERROR undefined” you likely didn’t enable WebSockets for the Azure Web Site (step d above).
+    * At the bottom of the page you should see “Connected.”. If you see “ERROR undefined” you likely didn’t enable WebSockets for the Azure Web Site (see step d above).
