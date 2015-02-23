@@ -148,7 +148,7 @@ namespace AzurePrep
             // Create EHs + device keys + consumer keys (WebSite*)
             var nsManager = NamespaceManager.CreateFromConnectionString(nsConnectionString);
 
-            var ehDescriptionDevices = new EventHubDescription(EventHubNameDevices)
+            var ehDescriptionDevices = new EventHubDescription(EventHubNameDevices.ToLowerInvariant())
             {
                 PartitionCount = 8,
             };
@@ -161,7 +161,7 @@ namespace AzurePrep
 
             ehDescriptionDevices.Authorization.Add(new SharedAccessAuthorizationRule("streamanalytics", new List<AccessRights> { AccessRights.Manage, AccessRights.Listen, AccessRights.Send }));
 
-            Console.WriteLine("Creating Event Hub {0}", EventHubNameDevices);
+            Console.WriteLine("Creating Event Hub {0}", EventHubNameDevices.ToLowerInvariant());
             EventHubDescription ehDevices = null;
             do
             {
@@ -176,14 +176,14 @@ namespace AzurePrep
                 }
             } while (ehDevices == null);
 
-            var ehDescriptionAlerts = new EventHubDescription(EventHubNameAlerts)
+            var ehDescriptionAlerts = new EventHubDescription(EventHubNameAlerts.ToLowerInvariant())
             {
                 PartitionCount = 8,
             };
             ehDescriptionAlerts.Authorization.Add(new SharedAccessAuthorizationRule("WebSite", new List<AccessRights> { AccessRights.Manage, AccessRights.Listen, AccessRights.Send }));
             ehDescriptionAlerts.Authorization.Add(new SharedAccessAuthorizationRule("streamanalytics", new List<AccessRights> { AccessRights.Manage, AccessRights.Listen, AccessRights.Send }));
 
-            Console.WriteLine("Creating Event Hub {0}", EventHubNameAlerts);
+            Console.WriteLine("Creating Event Hub {0}", EventHubNameAlerts.ToLowerInvariant());
             var ehAlerts = nsManager.CreateEventHubIfNotExists(ehDescriptionAlerts);
 
             // Create Storage Account for Event Hub Processor
@@ -243,9 +243,9 @@ namespace AzurePrep
             doc.Load(WebSiteDirectory + inputFileName);
 
             doc.SelectSingleNode("/configuration/appSettings/add[@key='Microsoft.ServiceBus.EventHubDevices']/@value").Value
-                = EventHubNameDevices;
+                = EventHubNameDevices.ToLowerInvariant();
             doc.SelectSingleNode("/configuration/appSettings/add[@key='Microsoft.ServiceBus.EventHubAlerts']/@value").Value
-                = EventHubNameAlerts;
+                = EventHubNameAlerts.ToLowerInvariant();
             doc.SelectSingleNode("/configuration/appSettings/add[@key='Microsoft.ServiceBus.ConnectionString']/@value").Value
                 = nsConnectionString;
             doc.SelectSingleNode("/configuration/appSettings/add[@key='Microsoft.ServiceBus.ConnectionStringDevices']/@value").Value
@@ -538,11 +538,11 @@ namespace AzurePrep
             }
             if (EventHubNameDevices == null)
             {
-                EventHubNameDevices = "EHDevices";
+                EventHubNameDevices = "ehdevices";
             }
             if (EventHubNameAlerts == null)
             {
-                EventHubNameAlerts = "EHAlerts";
+                EventHubNameAlerts = "ehalerts";
             }
             if (WebSiteDirectory == null)
             {
