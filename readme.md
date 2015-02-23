@@ -30,7 +30,7 @@ Setting up your IoT solution involves several distinct steps, each of which is f
 
 1. [Azure prep](Azure/AzurePrep/AzurePrep.md) - Creating basic Azure resources
 2. [Device setup](Devices/DeviceSetup.md) - Configuring your device(s)
-3. [Sample website deployment](Azure/Website/WebsitePublish.md) - Publishing a generic sample website
+3. [Sample website deployment](Azure/WebSite/WebsitePublish.md) - Publishing a generic sample website for viewing the data
 4. [Analysis services setup](Azure/StreamAnalyticsQueries/SA_setup.md) - Configuring Azure Stream Analytics services (for starter solution)
   
 To get started with a simple example, complete the "Connect The Dots starter solution" tasks identified in each of the above steps.
