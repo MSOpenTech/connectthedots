@@ -72,9 +72,12 @@ HTU21D myHumidity; //Create an instance of the humidity sensor
 // You can use Visual Studio to create DeviceGUID and copy it here. In VS, On the Tools menu, click Create GUID. The Create GUID
 // tool appears with a GUID in the Result box. Click Copy, and paste below.
 //
+
+
 char SensorSubject[] = "wthr";
 char DeviceDisplayName[] = "Weather Shield 01";
 char DeviceGUID[] = "81E79059-A393-4797-8A7E-526C3EF9D64B";
+
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 //Hardware pin definitions
@@ -432,54 +435,93 @@ void printWeather()
   calcWeather(); //Go calc all the various sensors
 
   //MYSERIAL.println();
+  // print string for temperature
   MYSERIAL.print("{");
-  MYSERIAL.print("\"dspl\":");
+  MYSERIAL.print("\"guid\":");
   MYSERIAL.print("\"");
-  MYSERIAL.print(DeviceDisplayName);
+  MYSERIAL.print(GUID);
   MYSERIAL.print("\"");
-  MYSERIAL.print(",\"Subject\":");
+  MYSERIAL.print(",\"organization\":");
   MYSERIAL.print("\"");
-  MYSERIAL.print(SensorSubject);
+  MYSERIAL.print(Organization);
   MYSERIAL.print("\"");
-  MYSERIAL.print(",\"DeviceGUID\":");
+  MYSERIAL.print(",\"displayname\":");
   MYSERIAL.print("\"");
-  MYSERIAL.print(DeviceGUID);
+  MYSERIAL.print(DisplayName);
   MYSERIAL.print("\"");
-  MYSERIAL.print(",\"millis\":");
-  MYSERIAL.print(millis());
-  MYSERIAL.print(",\"seqno\":");
-  MYSERIAL.print(sequenceNumber++);
-  MYSERIAL.print(",\"winddir\":");
-  MYSERIAL.print(winddir);
-  MYSERIAL.print(",\"windspeedmph\":");
-  MYSERIAL.print(( windspeedmph!=windspeedmph ? -1 : windspeedmph), 1); // windpspeedmph can be NAN: this comparison checks for that and sends -1 instead
-  MYSERIAL.print(",\"windgustmph\":");
-  MYSERIAL.print(windgustmph, 1);
-  MYSERIAL.print(",\"windgustdir\":");
-  MYSERIAL.print(windgustdir);
-  MYSERIAL.print(",\"windspdmph_avg2m\":");
-  MYSERIAL.print(windspdmph_avg2m, 1);
-  MYSERIAL.print(",\"winddir_avg2m\":");
-  MYSERIAL.print(winddir_avg2m);
-  MYSERIAL.print(",\"windgustmph_10m\":");
-  MYSERIAL.print(windgustmph_10m, 1);
-  MYSERIAL.print(",\"windgustdir_10m\":");
-  MYSERIAL.print(windgustdir_10m);
-  MYSERIAL.print(",\"hmdt\":");
-  MYSERIAL.print(humidity, 1);
-  MYSERIAL.print(",\"temp\":");
+  MYSERIAL.print(",\"location\":");
+  MYSERIAL.print("\"");
+  MYSERIAL.print(Location);
+  MYSERIAL.print("\"");
+  MYSERIAL.print(",\"measurename\":");
+  MYSERIAL.print("\"");
+  MYSERIAL.print(MeasureName);
+  MYSERIAL.print("\"");
+  MYSERIAL.print(",\"unitofmeasure\":");
+  MYSERIAL.print("\"");
+  MYSERIAL.print(UnitOfMeasure);
+  MYSERIAL.print("\"");
+  MYSERIAL.print(",\"value\":");
   MYSERIAL.print(tempf, 1);
-  MYSERIAL.print(",\"tempH\":");
-  MYSERIAL.print(temp_h, 1);
-  MYSERIAL.print(",\"rainin\":");
-  MYSERIAL.print(rainin, 2);
-  MYSERIAL.print(",\"dailyrainin\":");
-  MYSERIAL.print(dailyrainin, 2);
-  MYSERIAL.print(",\"prss\":");
-  MYSERIAL.print(pressure, 2);
-  MYSERIAL.print(",\"batt\":");
-  MYSERIAL.print(batt_lvl, 2);
-  MYSERIAL.print(",\"lght\":");
+  MYSERIAL.println("}");
+  
+  // print string for humidity
+  MYSERIAL.print("{");
+  MYSERIAL.print("\"guid\":");
+  MYSERIAL.print("\"");
+  MYSERIAL.print(GUID2);
+  MYSERIAL.print("\"");
+  MYSERIAL.print(",\"organization\":");
+  MYSERIAL.print("\"");
+  MYSERIAL.print(Organization);
+  MYSERIAL.print("\"");
+  MYSERIAL.print(",\"displayname\":");
+  MYSERIAL.print("\"");
+  MYSERIAL.print(DisplayName);
+  MYSERIAL.print("\"");
+  MYSERIAL.print(",\"location\":");
+  MYSERIAL.print("\"");
+  MYSERIAL.print(Location);
+  MYSERIAL.print("\"");
+  MYSERIAL.print(",\"measurename\":");
+  MYSERIAL.print("\"");
+  MYSERIAL.print(MeasureName2);
+  MYSERIAL.print("\"");
+  MYSERIAL.print(",\"unitofmeasure\":");
+  MYSERIAL.print("\"");
+  MYSERIAL.print(UnitOfMeasure2);
+  MYSERIAL.print("\"");
+  MYSERIAL.print(",\"value\":");
+  MYSERIAL.print(humidity, 1);
+  MYSERIAL.println("}");
+
+  // print string for light
+  MYSERIAL.print("{");
+  MYSERIAL.print("\"guid\":");
+  MYSERIAL.print("\"");
+  MYSERIAL.print(GUID);
+  MYSERIAL.print("\"");
+  MYSERIAL.print(",\"organization\":");
+  MYSERIAL.print("\"");
+  MYSERIAL.print(Organization);
+  MYSERIAL.print("\"");
+  MYSERIAL.print(",\"displayname\":");
+  MYSERIAL.print("\"");
+  MYSERIAL.print(DisplayName);
+  MYSERIAL.print("\"");
+  MYSERIAL.print(",\"location\":");
+  MYSERIAL.print("\"");
+  MYSERIAL.print(Location);
+  MYSERIAL.print("\"");
+  MYSERIAL.print(",\"measurename\":");
+  MYSERIAL.print("\"");
+  MYSERIAL.print(MeasureName3);
+  MYSERIAL.print("\"");
+  MYSERIAL.print(",\"unitofmeasure\":");
+  MYSERIAL.print("\"");
+  MYSERIAL.print(UnitOfMeasure3);
+  MYSERIAL.print("\"");
+  MYSERIAL.print(",\"value\":");
   MYSERIAL.print(light_lvl, 2);
   MYSERIAL.println("}");
 

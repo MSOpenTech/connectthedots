@@ -44,7 +44,7 @@ using Microsoft.WindowsAzure.Management.ServiceBus.Models;
 
 using Newtonsoft.Json;
 
-namespace ConnectTheDotsCloudDeploy
+namespace AzurePrep
 {
     class Program
     {
@@ -148,7 +148,7 @@ namespace ConnectTheDotsCloudDeploy
             // Create EHs + device keys + consumer keys (WebSite*)
             var nsManager = NamespaceManager.CreateFromConnectionString(nsConnectionString);
 
-            var ehDescriptionDevices = new EventHubDescription(EventHubNameDevices)
+            var ehDescriptionDevices = new EventHubDescription(EventHubNameDevices.ToLowerInvariant())
             {
                 PartitionCount = 8,
             };
@@ -159,9 +159,9 @@ namespace ConnectTheDotsCloudDeploy
 
             ehDescriptionDevices.Authorization.Add(new SharedAccessAuthorizationRule("WebSite", new List<AccessRights> { AccessRights.Manage, AccessRights.Listen, AccessRights.Send }));
 
-            ehDescriptionDevices.Authorization.Add(new SharedAccessAuthorizationRule("StreamingAnalytics", new List<AccessRights> { AccessRights.Manage, AccessRights.Listen, AccessRights.Send }));
+            ehDescriptionDevices.Authorization.Add(new SharedAccessAuthorizationRule("streamanalytics", new List<AccessRights> { AccessRights.Manage, AccessRights.Listen, AccessRights.Send }));
 
-            Console.WriteLine("Creating Event Hub {0}", EventHubNameDevices);
+            Console.WriteLine("Creating Event Hub {0}", EventHubNameDevices.ToLowerInvariant());
             EventHubDescription ehDevices = null;
             do
             {
@@ -176,14 +176,14 @@ namespace ConnectTheDotsCloudDeploy
                 }
             } while (ehDevices == null);
 
-            var ehDescriptionAlerts = new EventHubDescription(EventHubNameAlerts)
+            var ehDescriptionAlerts = new EventHubDescription(EventHubNameAlerts.ToLowerInvariant())
             {
                 PartitionCount = 8,
             };
             ehDescriptionAlerts.Authorization.Add(new SharedAccessAuthorizationRule("WebSite", new List<AccessRights> { AccessRights.Manage, AccessRights.Listen, AccessRights.Send }));
-            ehDescriptionAlerts.Authorization.Add(new SharedAccessAuthorizationRule("StreamingAnalytics", new List<AccessRights> { AccessRights.Manage, AccessRights.Listen, AccessRights.Send }));
+            ehDescriptionAlerts.Authorization.Add(new SharedAccessAuthorizationRule("streamanalytics", new List<AccessRights> { AccessRights.Manage, AccessRights.Listen, AccessRights.Send }));
 
-            Console.WriteLine("Creating Event Hub {0}", EventHubNameAlerts);
+            Console.WriteLine("Creating Event Hub {0}", EventHubNameAlerts.ToLowerInvariant());
             var ehAlerts = nsManager.CreateEventHubIfNotExists(ehDescriptionAlerts);
 
             // Create Storage Account for Event Hub Processor
@@ -243,9 +243,9 @@ namespace ConnectTheDotsCloudDeploy
             doc.Load(WebSiteDirectory + inputFileName);
 
             doc.SelectSingleNode("/configuration/appSettings/add[@key='Microsoft.ServiceBus.EventHubDevices']/@value").Value
-                = EventHubNameDevices;
+                = EventHubNameDevices.ToLowerInvariant();
             doc.SelectSingleNode("/configuration/appSettings/add[@key='Microsoft.ServiceBus.EventHubAlerts']/@value").Value
-                = EventHubNameAlerts;
+                = EventHubNameAlerts.ToLowerInvariant();
             doc.SelectSingleNode("/configuration/appSettings/add[@key='Microsoft.ServiceBus.ConnectionString']/@value").Value
                 = nsConnectionString;
             doc.SelectSingleNode("/configuration/appSettings/add[@key='Microsoft.ServiceBus.ConnectionStringDevices']/@value").Value
@@ -332,10 +332,10 @@ namespace ConnectTheDotsCloudDeploy
                                         {
                                             { "eventHubNamespace", Namespace },
                                             { "eventHubName", EventHubDevices },
-                                            { "sharedAccessPolicyName", "StreamingAnalytics" },
+                                            { "sharedAccessPolicyName", "streamanalytics" },
                                             { "sharedAccessPolicyKey", 
                                                 (ehDevices.Authorization.First( (d) 
-                                                    => String.Equals(d.KeyName, "StreamingAnalytics", StringComparison.InvariantCultureIgnoreCase)) as SharedAccessAuthorizationRule).PrimaryKey },
+                                                    => String.Equals(d.KeyName, "streamanalytics", StringComparison.InvariantCultureIgnoreCase)) as SharedAccessAuthorizationRule).PrimaryKey },
                                         }
                                     }
                                 }
@@ -366,9 +366,9 @@ namespace ConnectTheDotsCloudDeploy
                                         {
                                             { "eventHubNamespace", Namespace },
                                             { "eventHubName", EventHubAlerts },
-                                            { "sharedAccessPolicyName", "StreamingAnalytics" },
+                                            { "sharedAccessPolicyName", "streamanalytics" },
                                             { "sharedAccessPolicyKey", 
-                                                (ehAlerts.Authorization.First( (d) => String.Equals(d.KeyName, "StreamingAnalytics", StringComparison.InvariantCultureIgnoreCase)) as SharedAccessAuthorizationRule).PrimaryKey },
+                                                (ehAlerts.Authorization.First( (d) => String.Equals(d.KeyName, "streamanalytics", StringComparison.InvariantCultureIgnoreCase)) as SharedAccessAuthorizationRule).PrimaryKey },
                                         }
                                     }
                                 }
@@ -516,7 +516,7 @@ namespace ConnectTheDotsCloudDeploy
 
             if (bParseError)
             {
-                Console.WriteLine("Usage: ConnectTheDotsCloudDeploy  -PublishSettingsFile <settingsfile> [-NamePrefix <prefix>] [-Location <location>] [-website <websitedir>]");
+                Console.WriteLine("Usage: AzurePrep.exe  -PublishSettingsFile <settingsfile> [-NamePrefix <prefix>] [-Location <location>] [-website <websitedir>]");
                 return 1;
             }
 
@@ -538,11 +538,11 @@ namespace ConnectTheDotsCloudDeploy
             }
             if (EventHubNameDevices == null)
             {
-                EventHubNameDevices = "EHDevices";
+                EventHubNameDevices = "ehdevices";
             }
             if (EventHubNameAlerts == null)
             {
-                EventHubNameAlerts = "EHAlerts";
+                EventHubNameAlerts = "ehalerts";
             }
             if (WebSiteDirectory == null)
             {
