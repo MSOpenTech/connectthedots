@@ -73,16 +73,10 @@ HTU21D myHumidity; //Create an instance of the humidity sensor
 // tool appears with a GUID in the Result box. Click Copy, and paste below.
 //
 
-char GUID[] = "81E79059-A393-4797-8A7E-526C3EF9D64B";
-char Organization[] = "Contoso";
-char DisplayName[] = "Weather Shield 01";
-char Location[] = "here";
-char MeasureName[] = "temperature";
-char UnitOfMeasure[] = "deg F";
-char MeasureName2[] = "humidity";
-char UnitOfMeasure2[] = "deg";
-char MeasureName3[] = "light";
-char UnitOfMeasure3[] = "lumen";
+
+char SensorSubject[] = "wthr";
+char DeviceDisplayName[] = "Weather Shield 01";
+char DeviceGUID[] = "81E79059-A393-4797-8A7E-526C3EF9D64B";
 
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
@@ -443,91 +437,91 @@ void printWeather()
   //MYSERIAL.println();
   // print string for temperature
   MYSERIAL.print("{");
-  MYSERIAL.print("\"GUID\":");
+  MYSERIAL.print("\"guid\":");
   MYSERIAL.print("\"");
   MYSERIAL.print(GUID);
   MYSERIAL.print("\"");
-  MYSERIAL.print(",\"Organization\":");
+  MYSERIAL.print(",\"organization\":");
   MYSERIAL.print("\"");
   MYSERIAL.print(Organization);
   MYSERIAL.print("\"");
-  MYSERIAL.print(",\"DisplayName\":");
+  MYSERIAL.print(",\"displayname\":");
   MYSERIAL.print("\"");
   MYSERIAL.print(DisplayName);
   MYSERIAL.print("\"");
-  MYSERIAL.print(",\"Location\":");
+  MYSERIAL.print(",\"location\":");
   MYSERIAL.print("\"");
   MYSERIAL.print(Location);
   MYSERIAL.print("\"");
-  MYSERIAL.print(",\"MeasureName\":");
+  MYSERIAL.print(",\"measurename\":");
   MYSERIAL.print("\"");
   MYSERIAL.print(MeasureName);
   MYSERIAL.print("\"");
-  MYSERIAL.print(",\"UnitOfMeasure\":");
+  MYSERIAL.print(",\"unitofmeasure\":");
   MYSERIAL.print("\"");
   MYSERIAL.print(UnitOfMeasure);
   MYSERIAL.print("\"");
-  MYSERIAL.print(",\"Value\":");
+  MYSERIAL.print(",\"value\":");
   MYSERIAL.print(tempf, 1);
   MYSERIAL.println("}");
   
   // print string for humidity
   MYSERIAL.print("{");
-  MYSERIAL.print("\"GUID\":");
+  MYSERIAL.print("\"guid\":");
   MYSERIAL.print("\"");
-  MYSERIAL.print(GUID);
+  MYSERIAL.print(GUID2);
   MYSERIAL.print("\"");
-  MYSERIAL.print(",\"Organization\":");
+  MYSERIAL.print(",\"organization\":");
   MYSERIAL.print("\"");
   MYSERIAL.print(Organization);
   MYSERIAL.print("\"");
-  MYSERIAL.print(",\"DisplayName\":");
+  MYSERIAL.print(",\"displayname\":");
   MYSERIAL.print("\"");
   MYSERIAL.print(DisplayName);
   MYSERIAL.print("\"");
-  MYSERIAL.print(",\"Location\":");
+  MYSERIAL.print(",\"location\":");
   MYSERIAL.print("\"");
   MYSERIAL.print(Location);
   MYSERIAL.print("\"");
-  MYSERIAL.print(",\"MeasureName\":");
+  MYSERIAL.print(",\"measurename\":");
   MYSERIAL.print("\"");
   MYSERIAL.print(MeasureName2);
   MYSERIAL.print("\"");
-  MYSERIAL.print(",\"UnitOfMeasure\":");
+  MYSERIAL.print(",\"unitofmeasure\":");
   MYSERIAL.print("\"");
   MYSERIAL.print(UnitOfMeasure2);
   MYSERIAL.print("\"");
-  MYSERIAL.print(",\"Value\":");
+  MYSERIAL.print(",\"value\":");
   MYSERIAL.print(humidity, 1);
   MYSERIAL.println("}");
 
   // print string for light
   MYSERIAL.print("{");
-  MYSERIAL.print("\"GUID\":");
+  MYSERIAL.print("\"guid\":");
   MYSERIAL.print("\"");
   MYSERIAL.print(GUID);
   MYSERIAL.print("\"");
-  MYSERIAL.print(",\"Organization\":");
+  MYSERIAL.print(",\"organization\":");
   MYSERIAL.print("\"");
   MYSERIAL.print(Organization);
   MYSERIAL.print("\"");
-  MYSERIAL.print(",\"DisplayName\":");
+  MYSERIAL.print(",\"displayname\":");
   MYSERIAL.print("\"");
   MYSERIAL.print(DisplayName);
   MYSERIAL.print("\"");
-  MYSERIAL.print(",\"Location\":");
+  MYSERIAL.print(",\"location\":");
   MYSERIAL.print("\"");
   MYSERIAL.print(Location);
   MYSERIAL.print("\"");
-  MYSERIAL.print(",\"MeasureName\":");
+  MYSERIAL.print(",\"measurename\":");
   MYSERIAL.print("\"");
   MYSERIAL.print(MeasureName3);
   MYSERIAL.print("\"");
-  MYSERIAL.print(",\"UnitOfMeasure\":");
+  MYSERIAL.print(",\"unitofmeasure\":");
   MYSERIAL.print("\"");
   MYSERIAL.print(UnitOfMeasure3);
   MYSERIAL.print("\"");
-  MYSERIAL.print(",\"Value\":");
+  MYSERIAL.print(",\"value\":");
   MYSERIAL.print(light_lvl, 2);
   MYSERIAL.println("}");
 
