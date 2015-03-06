@@ -105,6 +105,8 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Docs\Temp and Humidity Website setup.md" />
+    <Content Include="Docs\REST Service.md" />
+    <None Include="Properties\PublishProfiles\ctdparis.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -129,6 +131,7 @@
     <Compile Include="Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
     </Compile>
+    <Compile Include="DevicesControlService.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

@@ -1,0 +1,80 @@
+<!-----------------------------------------------------------------------------------
+//  Copyright (c) Microsoft Open Technologies, Inc.  All rights reserved.
+// 
+//  The MIT License (MIT)
+// 
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+// 
+//  The above copyright notice and this permission notice shall be included in
+//  all copies or substantial portions of the Software.
+// 
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//  THE SOFTWARE.
+//  -------------------------------------------------------------------------------->
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="msapplication-tap-highlight" content="no" />
+        <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+		<link rel="stylesheet" type="text/css" href="css/jquery.mobile-1.4.5.min.css" />
+        <title>Connect The Dots</title>
+    </head>
+    <body>
+        <div data-role="page" id="home">
+			<div data-role="header">
+				<h1>Connect The Dots</h1>
+			</div>
+			<div class="ui-content" role="main">
+				<div>
+					<label for="device_id">DeviceId:</label> 	
+					<select name="device_id">
+						<option value="all">all</option>
+						<option value="D1">D1</option>
+						<option value="D2">D2</option>
+						<option value="D3">D3</option>
+						<option value="D4">D4</option>
+					</select>
+				</div>
+				<div class="ui-field-contain">
+					<label for="slider-fill">Red:</label>
+					<input type="range" name="color-red" value="120" min="0" max="255" data-highlight="true">
+					<label for="slider-fill">Green:</label>
+					<input type="range" name="color-green" value="120" min="0" max="255" data-highlight="true">
+					<label for="slider-fill">Blue:</label>
+					<input type="range" name="color-blue" value="120" min="0" max="255" data-highlight="true">
+					<label for="message_text">Text:</label>
+					<input type="text" name="message_text"/>
+				</div>
+				<div><input id="changeTextBtn" type="button" class="ui-btn" value="Change Text"/></div>
+				<div class="ui-field-contain">
+					<label for="lightSwitch">Light</label>
+					<fieldset id="lightSwitch" data-role="controlgroup" data-type="horizontal">
+						<input id="lightOnBtn" name="light_state" type="radio" value="Light On"/>
+						<label for="lightOnBtn">On</label>
+						
+						<input id="lightOffBtn" name="light_state" type="radio" value="Light Off"/>
+						<label for="lightOffBtn">Off</label>
+					</fieldset>
+				</div>
+			</div>
+		</div>
+		<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+		<script type="text/javascript" src="js/jquery.mobile-1.4.5.min.js"></script>
+        <script type="text/javascript" src="cordova.js"></script>
+		<script type="text/javascript" src="js/index.js"></script>
+    </body>
+</html>

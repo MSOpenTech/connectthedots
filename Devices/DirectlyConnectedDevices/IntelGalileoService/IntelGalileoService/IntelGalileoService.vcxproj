@@ -1,0 +1,144 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{51C28C94-F72F-4AEE-9243-958E3F0DDC2D}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>IntelGalileoService</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros">
+    <NuGetPackageImportStamp>0aa57628</NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>INTEL_GALILEO;WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalOptions>/d2nolock %(AdditionalOptions)</AdditionalOptions>
+      <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>mincore.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>-d2:-nolock /NODEFAULTLIB:ole32.lib /NODEFAULTLIB:kernel32.lib /NODEFAULTLIB:user32.lib /NODEFAULTLIB:advapi32.lib %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>INTEL_GALILEO;WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalOptions>/d2nolock %(AdditionalOptions)</AdditionalOptions>
+      <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>mincore.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>-d2:-nolock /NODEFAULTLIB:ole32.lib /NODEFAULTLIB:kernel32.lib /NODEFAULTLIB:user32.lib /NODEFAULTLIB:advapi32.lib %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="AllCommands.h" />
+    <ClInclude Include="amqp\Address.h" />
+    <ClInclude Include="amqp\Receiver.h" />
+    <ClInclude Include="BuzzerAlarmCommand.h" />
+    <ClInclude Include="Configuration.h" />
+    <ClInclude Include="json\JSON.h" />
+    <ClInclude Include="json\JSONValue.h" />
+    <ClInclude Include="LightCommand.h" />
+    <ClInclude Include="Commands.h" />
+    <ClInclude Include="grove\GroveBuzzer.h" />
+    <ClInclude Include="grove\GroveLED.h" />
+    <ClInclude Include="grove\rgb_lcd.h" />
+    <ClInclude Include="ScreenTextCommand.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="xml\rapidxml.hpp" />
+    <ClInclude Include="xml\rapidxml_utils.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="amqp\Address.cpp" />
+    <ClCompile Include="amqp\Receiver.cpp" />
+    <ClCompile Include="BuzzerAlarmCommand.cpp" />
+    <ClCompile Include="Configuration.cpp" />
+    <ClCompile Include="json\JSON.cpp" />
+    <ClCompile Include="json\JSONValue.cpp" />
+    <ClCompile Include="LightCommand.cpp" />
+    <ClCompile Include="Commands.cpp" />
+    <ClCompile Include="grove\GroveBuzzer.cpp" />
+    <ClCompile Include="grove\GroveLED.cpp" />
+    <ClCompile Include="grove\rgb_lcd.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="ScreenTextCommand.cpp" />
+    <ClCompile Include="stdafx.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Docs\README.md" />
+    <None Include="IntelGalileoService.exe.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\Microsoft.IoT.NativeWiring.1.0.0\build\native\Microsoft.IoT.NativeWiring.targets" Condition="Exists('..\packages\Microsoft.IoT.NativeWiring.1.0.0\build\native\Microsoft.IoT.NativeWiring.targets')" />
+    <Import Project="..\packages\Microsoft.IoT.SDKFromArduino.1.0.0\build\native\Microsoft.IoT.SDKFromArduino.targets" Condition="Exists('..\packages\Microsoft.IoT.SDKFromArduino.1.0.0\build\native\Microsoft.IoT.SDKFromArduino.targets')" />
+    <Import Project="..\packages\Apache.Qpid.Proton.Unoff.IA32.redist.0.8.0.0\build\native\Apache.Qpid.Proton.Unoff.IA32.redist.targets" Condition="Exists('..\packages\Apache.Qpid.Proton.Unoff.IA32.redist.0.8.0.0\build\native\Apache.Qpid.Proton.Unoff.IA32.redist.targets')" />
+    <Import Project="..\packages\Apache.Qpid.Proton.Unoff.IA32.0.8.0.0\build\native\Apache.Qpid.Proton.Unoff.IA32.targets" Condition="Exists('..\packages\Apache.Qpid.Proton.Unoff.IA32.0.8.0.0\build\native\Apache.Qpid.Proton.Unoff.IA32.targets')" />
+  </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.IoT.NativeWiring.1.0.0\build\native\Microsoft.IoT.NativeWiring.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.IoT.NativeWiring.1.0.0\build\native\Microsoft.IoT.NativeWiring.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.IoT.SDKFromArduino.1.0.0\build\native\Microsoft.IoT.SDKFromArduino.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.IoT.SDKFromArduino.1.0.0\build\native\Microsoft.IoT.SDKFromArduino.targets'))" />
+    <Error Condition="!Exists('..\packages\Apache.Qpid.Proton.Unoff.IA32.redist.0.8.0.0\build\native\Apache.Qpid.Proton.Unoff.IA32.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Apache.Qpid.Proton.Unoff.IA32.redist.0.8.0.0\build\native\Apache.Qpid.Proton.Unoff.IA32.redist.targets'))" />
+    <Error Condition="!Exists('..\packages\Apache.Qpid.Proton.Unoff.IA32.0.8.0.0\build\native\Apache.Qpid.Proton.Unoff.IA32.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Apache.Qpid.Proton.Unoff.IA32.0.8.0.0\build\native\Apache.Qpid.Proton.Unoff.IA32.targets'))" />
+  </Target>
+</Project>

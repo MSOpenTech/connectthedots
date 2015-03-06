@@ -607,7 +607,7 @@ $(document).ready(function () {
 
     // Set up websocket client
     var sss = (window.location.protocol.indexOf('s') > 0 ? "s" : "");    
-    var uri = 'ws'+ sss +'://' + window.location.host + '/api/websocketconnect?clientId=none';
+    var uri = 'ws' + sss + '://' + window.location.host + '/api/WebSocketConnect/Connect?clientId=none';
     websocket = new WebSocket(uri);
 
     $('#messages').prepend('<div> Connecting to ' + uri + '<div>');

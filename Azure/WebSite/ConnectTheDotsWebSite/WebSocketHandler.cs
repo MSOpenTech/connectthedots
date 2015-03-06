@@ -39,7 +39,9 @@ namespace ConnectTheDotsWebSite
 {
     public class WebSocketConnectController : ApiController
     {
-        // GET api/<controller>
+        // GET api/WebSocketConnect/Connect
+        [HttpGet]
+        [ActionName("Connect")]
         public HttpResponseMessage Get(string clientId)
         {
             HttpContext.Current.AcceptWebSocketRequest(new MyWebSocketHandler());
