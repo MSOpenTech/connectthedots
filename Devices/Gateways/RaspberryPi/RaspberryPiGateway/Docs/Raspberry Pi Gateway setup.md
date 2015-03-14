@@ -11,6 +11,7 @@ And you will need and Internet access for the device wired or wireless depending
 ##Provision the Raspberry Pi:
 
 * Connect the Raspberry Pi to a power supply, keyboard, mouse, monitor, and Ethernet cable (or Wi-Fi dongle) with and Internet connection.
+    * See the [WiFi setup page](WiFi Configuration.md) for information on setting up WiFi and identifying the IP Address.
 * Get a Raspbian NOOBS SD Card or download a NOOBS image as per the instructions on http://www.raspberrypi.org/downloads/
 * Boot the NOOBS SD Card and choose Raspbian (see http://www.raspberrypi.org/help/noobs-setup/ for more information).
 * Connect to the Raspberry Pi from your laptop, either via a USB-Serial adapter or via the network via SSH (enable once as per these instructions while booting via a monitor on HDMI and a USB keyboard). To connect using SSH:
