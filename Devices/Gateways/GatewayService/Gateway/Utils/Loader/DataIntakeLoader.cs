@@ -22,6 +22,8 @@
 //  THE SOFTWARE.
 //  ---------------------------------------------------------------------------------
 
+//#define DEBUG_LOG
+
 namespace Microsoft.ConnectTheDots.Gateway
 {
     using System;
@@ -52,7 +54,9 @@ namespace Microsoft.ConnectTheDots.Gateway
         {
             _logger = SafeLogger.FromLogger( logger );
 
+#if DEBUG_LOG
             _logger.LogInfo( "Starting loading Data Intakes" );
+#endif
 
             _dataIntakes = new List<DeviceAdapterAbstract>( );
 
@@ -65,10 +69,13 @@ namespace Microsoft.ConnectTheDots.Gateway
                     sourcesToLoad.Add( filename, true );
                 }
             }
+                
+#if DEBUG_LOG
             else
             {
                 _logger.LogInfo( "No list of DeviceAdapters in configuration file, continuing..." );
             }
+#endif
 
             if( endpoints != null )
             {
@@ -77,11 +84,13 @@ namespace Microsoft.ConnectTheDots.Gateway
                     _SensorEndpoints.Add( endpoint );
                 }
             }
+
+#if DEBUG_LOG
             else
             {
                 _logger.LogInfo( "No list of SensorEndpoints in configuration file, continuing..." );
             }
-
+#endif
 
             //
             // enumerate all types with a IDeviceAdapter interface look in the current directory, in the 
@@ -181,7 +190,9 @@ namespace Microsoft.ConnectTheDots.Gateway
                         //Get all classes that implement the required interface
                         if( t.GetInterface( "IDeviceAdapter", false ) != null )
                         {
+#if DEBUG_LOG
                             _logger.LogInfo( "IDeviceAdapter assembly loaded: " + t.Name );
+#endif
 
                             nameTypeDict.Add( t.Name, t ); //Add to Dictonary
                         }
@@ -219,7 +230,9 @@ namespace Microsoft.ConnectTheDots.Gateway
 
                     if( di != null )
                     {
+#if DEBUG_LOG
                         _logger.LogInfo( "IDeviceAdapter instance created: " + t.Key );
+#endif
 
                         //adding instance without endpoint if acceptable
                         if( di.SetEndpoint( ) )

@@ -107,19 +107,19 @@ namespace ConnectTheDotsWebSite
 							}
 
 							break;
-						case "AnomaliesControl":
-							string newState = messageDictionary["State"] as string;
+                        //case "AnomaliesControl":
+                        //    string newState = messageDictionary["State"] as string;
 
-							if (newState == "generate")
-							{
-								WebSocketEventProcessor.GenerateAnomalies = true;
-							}
-							else
-							{
-								WebSocketEventProcessor.GenerateAnomalies = false;
-							}
+                        //    if (newState == "generate")
+                        //    {
+                        //        WebSocketEventProcessor.GenerateAnomalies = true;
+                        //    }
+                        //    else
+                        //    {
+                        //        WebSocketEventProcessor.GenerateAnomalies = false;
+                        //    }
 
-							return;
+                        //    return;
 						default:
 							Trace.TraceError("Client message with unknown message type: {0} - {1}", messageDictionary["MessageType"], message);
 							break;

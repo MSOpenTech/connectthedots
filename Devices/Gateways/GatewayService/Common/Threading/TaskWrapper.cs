@@ -65,6 +65,44 @@ namespace Microsoft.ConnectTheDots.Common.Threading
             _THREADING.Task.WaitAll( ts );
         }
 
+        public static void BatchWaitAll( params TaskWrapper[] tasks )
+        {
+            // we can wait on 64 handles at the most            
+            const int maxHandles = 64;
+
+            int remainder = tasks.Length % maxHandles;
+            int loops     = tasks.Length / maxHandles;
+
+            _THREADING.Task[] wh = null;
+            if( tasks.Length > maxHandles )
+            {
+
+                wh = new _THREADING.Task[ maxHandles ];
+
+                for( int i = 0; i < loops; ++i )
+                {
+                    for( int j = 0; j < maxHandles; ++j )
+                    {
+                        wh[ j ] = tasks[ ( i * maxHandles ) + j ].InnerTask;
+                    }
+
+                    _THREADING.Task.WaitAll( wh, Timeout.Infinite );
+                }
+            }
+
+            if( remainder > 0 )
+            {
+                wh = new _THREADING.Task[ remainder ];
+
+                for( int j = 0; j < remainder; ++j )
+                {
+                    wh[ j ] = tasks[ ( loops * maxHandles ) + j ].InnerTask;
+                }
+
+                _THREADING.Task.WaitAll( wh, Timeout.Infinite );
+            }
+        }
+
         //--//
 
         protected TaskWrapper( )
@@ -196,16 +234,42 @@ namespace Microsoft.ConnectTheDots.Common.Threading
             return t;
         }
 
-        public static void WaitAll( params TaskWrapper[] tasks )
+        public static void BatchWaitAll( params TaskWrapper[] tasks )
         {
-            WaitHandle[] wh = new WaitHandle[ tasks.Length ];
+            // we can wait on 64 handles at the most            
+            const int maxHandles = 64;
 
-            for( int i = 0; i < tasks.Length; ++i )
+            int remainder = tasks.Length % maxHandles;
+            int loops     = tasks.Length / maxHandles;
+
+            WaitHandle[] wh = null;
+            if( tasks.Length > maxHandles )
             {
-                wh[ i ] = tasks[ i ]._completed;
+
+                wh = new WaitHandle[ maxHandles ];
+
+                for( int i = 0; i < loops; ++i )
+                {
+                    for( int j = 0; j < maxHandles; ++j )
+                    {
+                        wh[ j ] = tasks[ ( i * maxHandles ) + j ]._completed;
+                    }
+
+                    AutoResetEvent.WaitAll( wh, Timeout.Infinite );
+                }
             }
 
-            AutoResetEvent.WaitAll( wh, Timeout.Infinite );
+            if( remainder > 0 )
+            {
+                wh = new WaitHandle[ remainder ];
+
+                for( int j = 0; j < remainder; ++j )
+                {
+                    wh[ j ] = tasks[ ( loops * maxHandles ) + j ]._completed;
+                }
+
+                AutoResetEvent.WaitAll( wh, Timeout.Infinite );
+            }
         }
 
         //--//
@@ -344,7 +408,7 @@ namespace Microsoft.ConnectTheDots.Common.Threading
                 }
             }
 
-            return (TaskWrapper<TNewResult>)_cont;
+            return ( TaskWrapper<TNewResult> )_cont;
         }
 
         public TResult Result
@@ -399,7 +463,7 @@ namespace Microsoft.ConnectTheDots.Common.Threading
             {
                 if( _cont != null )
                 {
-                    cont = (TaskWrapper)_cont;
+                    cont = ( TaskWrapper )_cont;
 
                     _cont = null;
                 }
@@ -410,7 +474,7 @@ namespace Microsoft.ConnectTheDots.Common.Threading
                 // do not start the continuation before the task is completed
                 WaitCompleted( );
 
-                ( (TaskWrapper)cont ).Start( );
+                ( ( TaskWrapper )cont ).Start( );
             }
         }
     }

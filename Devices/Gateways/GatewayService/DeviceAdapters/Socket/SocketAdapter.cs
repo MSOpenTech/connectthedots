@@ -95,31 +95,25 @@ namespace Microsoft.ConnectTheDots.Adapters
             {
                 try
                 {
+#if DEBUG_LOG
                     _logger.LogInfo( "Try connecting to device - step: " + ( CONNECTION_RETRIES - step ) );
-
+#endif
                     Socket client = new Socket( AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Unspecified );
 
                     client.Connect( _endpoint.Host, _endpoint.Port );
 
                     if( client.Connected )
                     {
+#if DEBUG_LOG
                         _logger.LogInfo( string.Format( "Socket connected to {0}", client.RemoteEndPoint.ToString() ) );
-
+#endif
                         _listeningThread = new Thread( ( ) => SensorDataClient( client ) );
                         _listeningThread.Start( );
 
-                        _logger.LogInfo( string.Format( "Reader thread started" ) );
-
                         _listeningThread.Join( );
-
-                        _logger.LogInfo( "Listening thread terminated. Quitting." );
 
                         //reset number of retries to connect
                         step = retries;
-                    }
-                    else
-                    {
-                        _logger.LogError( "No sensor connection detected. Quitting." );
                     }
                 }
                 catch( Exception ex )

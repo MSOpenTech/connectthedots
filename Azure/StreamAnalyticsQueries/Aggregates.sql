@@ -22,6 +22,19 @@
 //  THE SOFTWARE.
 //  ---------------------------------------------------------------------------------*/
 
-Select Max(time) as time, Max(Temp) as TempMax, Min(Temp) as TempMin, Avg(Temp) AS tempAvg
-From DevicesInput TIMESTAMP BY time
-Group by TumblingWindow(Minute, 1)
+Select
+    measurename,
+    unitofmeasure,
+    'All Sensors' AS location,
+    'All Sensors' AS organization,
+    'ace60e7c-a6aa-4694-ba86-c3b66952558e' AS guid,
+    'Temp Average' as displayname,
+    Max(timecreated) as timecreated,
+    Avg(value) AS value
+From
+    DevicesInput TIMESTAMP BY timecreated
+where
+    measurename = 'temperature' OR measurename='Temperature'
+Group by
+    measurename, unitofmeasure,
+    TumblingWindow(Second, 10)

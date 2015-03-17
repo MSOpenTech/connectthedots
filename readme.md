@@ -10,6 +10,32 @@ A good first task, which we are calling the "Connect The Dots starter solution" 
 
 Sample code for this is included in the project, as well as for many other more elaborate scenarios.
 
+## Device basics ##
+The current project is built on the premise that data from sensors is sent to an Azure Event Hub in a prescribed JSON format. The minimum structure, with required attribute names, is 
+
+    {
+	"guid" 			:	"string",
+	"organization"	:	"string",
+	"displayname"	:	"string",
+	"location"		:	"string",
+	"measurename"	:	"string",
+	"unitofmeasure"	:	"string",
+	"value" 		:	double/float/integer
+	}
+	
+This should all be sent as one string message to the Event Hub, for example as the following strings: 
+
+    {"guid":"62X74059-A444-4797-8A7E-526C3EF9D64B","organization":"My Org Name","displayname":"Sensor Name","location":"Sensor Location","measurename":"Temperature","unitofmeasure":"F","value":74}
+
+or
+
+    {"guid":"62X74059-A444-4797-8A7E-526C3EF9D64B","organization":"my org name","displayname":"sensor name","location":"sensor location","measurename":"Temperature","unitofmeasure":"F","value":74.0001}
+
+
+Furthermore, the project is built upon the premise that the *sensors* create and format this JSON string. For example, if using a sensor attached to an Arduino, the code running on the Arduino would send successive JSON strings, CRLF ended, out the serial port to a gateway such as a Raspberry Pi or Windows Tablet. The gateway does nothing other than receive the JSON string, package that into an AMQP message, and send it to Azure. In the case of a directly connected device, the latest needs to send the JSON package to the event hub whether encapsulating the JSON message in an AMQP message or sending the JSON message in a REST packet.
+
+All the device code included in this project, or submitted for inclusion, must conform to the JSON format requirement above. 
+
 ## Software prerequisites ##
 In order to reproduce one of the ConnectTheDots.io scenarios, you will need the following:
 
@@ -23,6 +49,7 @@ If you are going to deploy the starter solution, you need to procure an Arduino 
 - [Arduino UNO R3 and weather shield](Devices/GatewayConnectedDevices/Arduino/Weather/WeatherShieldJson/Hardware.md)
 - [Raspberry Pi](Devices/Gateways/RaspberryPi/Hardware.md)
 
+If you decide to connect another device, you can check out the samples provided in the devices sub folder containing .NET and C++ examples. Other languages examples are coming soon!
 
 ## Setup Tasks ##
 Setting up your IoT solution involves several distinct steps, each of which is fully described in this project:

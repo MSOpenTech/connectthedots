@@ -70,13 +70,10 @@ namespace Microsoft.ConnectTheDots.Test
             if( !IPAddress.TryParse( endpoint.Host, out ipAddress ) )
                 return;
 
-            _logger.LogInfo( "Starting Socket server..." );
-
             TcpListener serverSocket = new TcpListener( ipAddress, endpoint.Port );
             serverSocket.Start( );
 
             TcpClient clientSocket = serverSocket.AcceptTcpClient( );
-            _logger.LogInfo( "Accepted connection from client." );
 
             try
             {
@@ -98,7 +95,6 @@ namespace Microsoft.ConnectTheDots.Test
                     networkStream.Write( sendBytes, 0, sendBytes.Length );
                     networkStream.Flush( );
 
-                    _logger.LogInfo( "Sent: " + serializedData );
                     Thread.Sleep( SLEEP_TIME_MS );
                 }
             }

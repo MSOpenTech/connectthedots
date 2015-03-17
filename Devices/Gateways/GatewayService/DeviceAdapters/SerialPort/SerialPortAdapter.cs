@@ -23,6 +23,7 @@
 //  ---------------------------------------------------------------------------------
 
 //#define SIMULATEDATA
+//#define DEBUG_LOG
 
 namespace Microsoft.ConnectTheDots.Adapters
 {
@@ -103,7 +104,10 @@ namespace Microsoft.ConnectTheDots.Adapters
 #endif
             do
             {
+#if DEBUG_LOG
                 _logger.LogInfo( "RunForSerial loop for Serial Ports scan." );
+#endif
+
                 // We will monitor available COM ports and create listening thread for each new valid port
 #if !SIMULATEDATA
                 // Identify which serial ports are connected to sensors
@@ -116,7 +120,9 @@ namespace Microsoft.ConnectTheDots.Adapters
                     if( Array.IndexOf( ports, serialPortThread.portName ) == -1 )
                     {
                         // Serial port is no longer valid. Abort the listening process
+#if DEBUG_LOG
                         _logger.LogInfo( "Killed serial port: " + serialPortThread.portName );
+#endif
                         serialPortThread.listeningThread.Abort( );
                         threadsKilled.Add( serialPortThread );
                     }
@@ -133,8 +139,9 @@ namespace Microsoft.ConnectTheDots.Adapters
                 {
                     if( !_listeningThreads.Exists( x => x.portName.Equals( serialPortName ) ) )
                     {
+#if DEBUG_LOG
                         _logger.LogInfo( "Found serial port with Normal attribute: " + serialPortName );
-
+#endif
                         // Start a listening thread for each serial port
                         string name = serialPortName;
                         var listeningThread = new Thread( ( ) => ListeningForSensors( name ) );
@@ -165,23 +172,27 @@ namespace Microsoft.ConnectTheDots.Adapters
 
         public void ListeningForSensors( string port )
         {
+#if DEBUG_LOG
             _logger.LogInfo( "ListeningForSensors: " + port );
+#endif
             string serialPortName = port;
             SerialPort serialPort = null;
             bool serialPortAlive = true;
             // We want the thread to restart listening on the serial port if it crashed
             while( _doWorkSwitch )
             {
+#if DEBUG_LOG
                 _logger.LogInfo( "Starting listening loop for serial port " + serialPortName );
-
+#endif
                 try
                 {
 #if !SIMULATEDATA
                     serialPort = new SerialPort( serialPortName, 9600 );
                     serialPort.DtrEnable = true;
                     serialPort.Open( );
-
+#if DEBUG_LOG
                     _logger.LogInfo( "Opened Serial Port " + serialPortName );
+#endif
 #endif
                     do
                     {

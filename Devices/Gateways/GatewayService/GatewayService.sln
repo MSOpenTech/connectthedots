@@ -26,9 +26,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RaspberryPi", "RaspberryPi", "{86E795DC-E649-4739-BB0D-4D8EC7D49E12}"
 	ProjectSection(SolutionItems) = preProject
 		Scripts\RaspberryPi\autorun_install.sh = Scripts\RaspberryPi\autorun_install.sh
-		Scripts\RaspberryPi\autorun_once.sh = Scripts\RaspberryPi\autorun_once.sh
+		Scripts\RaspberryPi\certificate_update.sh = Scripts\RaspberryPi\certificate_update.sh
 		Scripts\RaspberryPi\deploy.cmd = Scripts\RaspberryPi\deploy.cmd
-		Scripts\RaspberryPi\runonce.sh = Scripts\RaspberryPi\runonce.sh
+		Scripts\RaspberryPi\deploy_and_start_ctd_on_boot.sh = Scripts\RaspberryPi\deploy_and_start_ctd_on_boot.sh
+		Scripts\RaspberryPi\kill_all.sh = Scripts\RaspberryPi\kill_all.sh
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SerialPortAdapter", "DeviceAdapters\SerialPort\SerialPortAdapter.csproj", "{A7B77408-0DBA-4384-A31A-404187CAEC89}"

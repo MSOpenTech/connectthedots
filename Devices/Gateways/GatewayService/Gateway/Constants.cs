@@ -35,6 +35,6 @@ namespace Microsoft.ConnectTheDots.Gateway
         }
 
         public const int ConcurrentConnections = 4;
-        public const int MessagesLoggingThreshold = 1000;
+        public const int MessagesLoggingThreshold = 10000;
     }
 }

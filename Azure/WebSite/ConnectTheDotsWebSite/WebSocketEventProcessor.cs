@@ -51,7 +51,7 @@ namespace ConnectTheDotsWebSite
 		Stopwatch checkpointStopWatch;
 		PartitionContext partitionContext;
 
-		public static bool GenerateAnomalies = false;
+//		public static bool GenerateAnomalies = false;
 
 		struct MinMax { public double min; public double max;};
 		private static Dictionary<string, MinMax> MinMaxValue = new Dictionary<string, MinMax>();
@@ -102,11 +102,7 @@ namespace ConnectTheDotsWebSite
 						var rnd = new Random();
 						foreach (var messagePayload in messagePayloads)
 						{
-							if (messagePayload.ContainsKey("alerttype"))
-							{
-								Debug.Print("Alert message received!");
-							}
-							// Hotfix
+							// Read time value
 							if (messagePayload.ContainsKey("timecreated"))
 							{
 								messagePayload["time"] = messagePayload["timecreated"];
@@ -115,14 +111,16 @@ namespace ConnectTheDotsWebSite
 							{
 								messagePayload["time"] = messagePayload["timearrived"];
 							}
-							// process an anomaly
-							if (messagePayload.ContainsKey("alerttype") && messagePayload.ContainsKey("timestart"))
+							// process an alert
+                            if (messagePayload.ContainsKey("alerttype") && messagePayload.ContainsKey("timecreated"))
 							{
-								DateTime timeStart = DateTime.Parse(messagePayload["timestart"].ToString());
+                                Debug.Print("Alert message received!");
+
+                                DateTime time = DateTime.Parse(messagePayload["timecreated"].ToString());
 								// find the nearest point
 								lock (sortedDataBuffer)
 								{
-									int idx = SearchHelper.FindFirstIndexGreaterThanOrEqualTo(sortedDataBuffer, timeStart);
+                                    int idx = SearchHelper.FindFirstIndexGreaterThanOrEqualTo(sortedDataBuffer, time);
 									bool found = false;
 									string alertType = messagePayload["alerttype"] as string;
 
@@ -143,7 +141,7 @@ namespace ConnectTheDotsWebSite
 												messagePayload["displayname"] = dict["displayname"];
 												if (!messagePayload.ContainsKey("time"))
 												{
-													messagePayload["time"] = messagePayload["timestart"];
+                                                    messagePayload["time"] = messagePayload["timecreated"];
 												}
 												found = true;
 												break;
@@ -154,6 +152,7 @@ namespace ConnectTheDotsWebSite
 									}
 								}
 							}
+
 							if (messagePayload.ContainsKey("guid"))
 							{
 								var guid = messagePayload["guid"].ToString();
@@ -175,19 +174,19 @@ namespace ConnectTheDotsWebSite
 							{
 								messageTimeStamp = DateTime.Parse(messagePayload["time"].ToString());
 
-								if (GenerateAnomalies && rnd.Next(100) >= 95)
-								{
-									messagePayload.Add("alerttype", "testType");
-									messagePayload.Add("dsplalert", "testAlert");
-									messagePayload.Add("message", "Anomaly detected by Azure ML model.");
-									messagePayload.Add("timestart", messagePayload["time"]);
+                                //if (GenerateAnomalies && rnd.Next(100) >= 95)
+                                //{
+                                //    messagePayload.Add("alerttype", "testType");
+                                //    messagePayload.Add("dsplalert", "testAlert");
+                                //    messagePayload.Add("message", "Anomaly detected by Azure ML model.");
+                                //    messagePayload.Add("timestart", messagePayload["time"]);
 
-									// correct value
-									if (rnd.Next(2) == 1)
-										messagePayload["value"] = MinMaxValue[messagePayload["guid"].ToString()].max * (1.01 + 0.05 * rnd.Next(100) / 100);
-									else
-										messagePayload["value"] = MinMaxValue[messagePayload["guid"].ToString()].min * (0.99 - 0.05 * rnd.Next(100) / 100);
-								}
+                                //    // correct value
+                                //    if (rnd.Next(2) == 1)
+                                //        messagePayload["value"] = MinMaxValue[messagePayload["guid"].ToString()].max * (1.01 + 0.05 * rnd.Next(100) / 100);
+                                //    else
+                                //        messagePayload["value"] = MinMaxValue[messagePayload["guid"].ToString()].min * (0.99 - 0.05 * rnd.Next(100) / 100);
+                                //}
 							}
 							else if (messagePayload.ContainsKey("timestart"))
 								messageTimeStamp = DateTime.Parse(messagePayload["timestart"].ToString());

@@ -128,12 +128,18 @@ namespace Microsoft.ConnectTheDots.CloudDeploy.AzurePrep
             AzurePrepInputs inputs;
             if( !GetInputs( out inputs ) )
             {
+                Console.WriteLine("Error while getting inputs.");
+                Console.WriteLine("Press Enter to continue...");
+                Console.ReadLine();
                 return false;
             }
 
             AzurePrepOutputs createResults = CreateEventHub( inputs );
             if( createResults == null )
             {
+                Console.WriteLine("Error while creating Event Hubs.");
+                Console.WriteLine("Press Enter to continue...");
+                Console.ReadLine();
                 return false;
             }
 
@@ -152,6 +158,8 @@ namespace Microsoft.ConnectTheDots.CloudDeploy.AzurePrep
 
                 Console.WriteLine( "amqps://{0}:{1}@{2}.servicebus.windows.net", deviceKeyName, Uri.EscapeDataString( deviceKey ), createResults.SBNamespace );
             }
+
+            Console.ReadLine();
 
             #endregion
 

@@ -22,11 +22,23 @@
 //  THE SOFTWARE.
 //  ---------------------------------------------------------------------------------*/
 
-SELECT 'LightSensor' as alerttype, 
-    dspl as dsplalert, 
+SELECT 
+	'LightSensor' as alerttype, 
     'The Light is turned OFF' as message,
+    displayname,
+    guid,
+    measurename,
+    unitofmeasure, 
+    location,
+    organization,
+    MIN(timecreated) AS timecreated,
     max(time) as timestart
-FROM DevicesInput timestamp by time
-Group by TumblingWindow(s, 5), dspl
-having avg(lght) < 0.02 
+FROM 
+    DevicesInput TIMESTAMP BY timecreated
+WHERE
+    measurename = 'light' OR measurename = 'Light'
+GROUP BY 
+    displayname, guid, measurename, unitofmeasure, location, organization,
+    TumblingWindow(Second, 5)
+having avg(value) < 0.02 
     and count(*) > 3

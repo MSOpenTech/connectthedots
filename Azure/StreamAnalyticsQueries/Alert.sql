@@ -21,14 +21,24 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
 //  ---------------------------------------------------------------------------------*/
-Select 'TempSpike' as alertType, 
-       'Temperature over 75F' as message, 
-       dspl as dsplAlert, 
-       max(time) as timeStart, 
-       max(time) as timeEnd, 
-       Max(temp) as tempMax, 
-       Min(temp) as tempMin, 
-       Avg(temp) AS tempAvg
-From DevicesInput TIMESTAMP BY time
-Group by dspl, TumblingWindow(Second, 20)
-Having tempMax > 75
+SELECT 
+    'TempSpike' AS alerttype, 
+    'Temperature over 80F' AS message, 
+    displayname,
+    guid,
+    measurename,
+    unitofmeasure, 
+    location,
+    organization,
+    MIN(timecreated) AS timecreated,
+    MAX(value) AS tempMax,
+    MAX(value) AS value
+FROM 
+    DevicesInput TIMESTAMP BY timecreated
+WHERE
+    measurename = 'temperature' OR measurename = 'Temperature'
+GROUP BY 
+    displayname, guid, measurename, unitofmeasure, location, organization,
+    TumblingWindow(Second, 5)
+ HAVING 
+    tempMax > 80

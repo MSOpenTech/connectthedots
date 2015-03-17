@@ -23,53 +23,56 @@ To build the project you will need Visual Studio 2013 [Community Edition](http:/
 * Once you have connected to the Pi, install on it the Mono runtime and root certs required for a secure SSL connection to Azure:
     * Run the following from a shell (i.e. via SSH). Note: Especially steps 1 and 2 can take a long time to download/un-compress
     
-			sudo apt-get update
-			sudo apt-get upgrade
-			sudo apt-get install mono-complete
-			mozroots --import --ask-remove
+                  sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF 
+                  echo "deb http://download.mono-project.com/repo/debian wheezy main" | sudo tee /etc/apt/sources.list.d/mono-xamarin.list 
+                  sudo apt-get update && sudo apt-get upgrade 
+                  sudo apt-get install mono-complete
+                  mozroots --import --ask-remove
 
 
-* Create a directory /home/pi/ RaspberryPiGateway. [NOTE: directory names on the Raspberry are CASE SENSITIVE, so raspberrypigateway is not the same as RaspberryPiGateway]:
-
-
-		mkdir /home/pi/RaspberryPiGateway
-
-
-* Open the Devices/Gateways/RaspberryPi/RaspberryPiGateway.sln solution in Visual Studio
-* In Visual Studio, update RaspberryPiGateway.exe.config with any one of the four amqp address strings returned by ConnectTheDotsCloudDeploy.exe, i.e. amqps://D1:xxxxxxxx@yyyyyyyy.servicebus.windows.net, and the 
+* Open the Devices\Gateways\GatewayService\GatewayService.sln solution in Visual Studio
+* In Visual Studio, update \GatewayService\WindowsService\App.config with any one of the four amqp address strings returned by ConnectTheDotsCloudDeploy.exe, i.e. amqps://D1:xxxxxxxx@yyyyyyyy.servicebus.windows.net, and the 
 name that you assigned to your gateway. It is important that the key is being url-encoded, meaning all special characters should be replaced by their ASCII code (e.g. "=" should be replaced by "%3D". You can use tools like [http://meyerweb.com/eric/tools/dencoder/](http://meyerweb.com/eric/tools/dencoder/) to url-encode the key
     
-		<add key ="EdgeGateway" value="RaspberryPi"/>
-		<add key="AMQPAddress" value="amqps://[keyname]:[key]@[namespace].servicebus.windows.net" />
-		<add key="EHtarget" value="ehdevices" />
-
  
-    
+		<AMQPServiceConfig
+		AMQPSAddress="amqps://[keyname]:[key]@[namespace].servicebus.windows.net"
+		EventHubName="ehdevices"
+		EventHubMessageSubject="gtsv"
+		EventHubDeviceId="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+		EventHubDeviceDisplayName="SensorGatewayService"/>
 
 
-* Use  the SCPRPI.CMD file found in \devices\RaspberryPiGateway\RaspberryPiGateway\scripts\scprpi.cmd to copy all requisite files from your computer to the Pi. To use the .CMD file, you will need to 
+* Use  the file \Scripts\RaspberryPi\deploy.cmd to copy all requisite files from your computer to the Pi. To use the .CMD file, you will need to 
         
-    * Remove the "REM" and update the IP address
+    * Update the IP address
     * Change the Putty and Project directories in the .CMD file as necessary
-    * Change bin\Debug or bin\Release to reflect whether you built the solution to Debug or Release. 
+    * Change Configuration to Release or Debug to reflect whether you built the solution to Debug or Release. 
     
- 
-* Log in to the Raspberry Pi via PuTTY, and make /home/pi/RaspberryPiGateway/autorun.sh executable:
-    
-		sudo chmod 755 /home/pi/RaspberryPiGateway/autorun.sh
-   
-
-* On the Raspberry Pi, modify /etc/rc.local by adding one line to start the gateway program on every boot (OK to skip this if you prefer to run manually after every reboot via /autorun.sh from a shell/SSH session):
+* On the Raspberry Pi, modify /etc/rc.local with nano:
     
 		Sudo nano /etc/rc.local
  
-
-* When you are in the nano editor, insert or change the reference to autorun.sh to be the following:
+* When you are in the nano editor, edit rc.local to the following:
     
-		/home/pi/RaspberryPiGateway/autorun.sh &
- 
+		# Print the IP address
+		_IP=$(hostname -I) || true
+		if [ "$_IP" ]; then
+		  printf "My IP address is %s\n" "$_IP"
+		fi
 
-* To exit the nano editor use Ctrl-x. To have the new settings take effect, reboot the Raspberry Pi by cycling the power or by issuing the command 
+		export GW_ACCOUNT_HOME=/home/pi
+		export GW_HOME=$GW_ACCOUNT_HOME/ctdgtwy
+		if [ ! -d $GW_HOME/logs ]
+		  then
+		   sudo mkdir $GW_HOME/logs
+		fi
+		sudo echo "$(date) booting..." >> $GW_HOME/logs/booting.log
+		$(cd $GW_HOME/ ; sh deploy_and_start_ctd_on_boot.sh) &
+		exit 0
+
+
+* To exit the nano editor use Ctrl-x, and press Y to save the changes. To have the new settings take effect, reboot the Raspberry Pi by cycling the power or by issuing the command 
     
 		Sudo reboot
 

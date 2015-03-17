@@ -186,16 +186,12 @@ function onNewEvent(evt) {
 
     if (eventObject.alerttype != null) {
         var table = $('#alertTable').DataTable();
-        var time = new Date(eventObject.timestart);
-
-        // Log the alert in the rawalerts div
-        $('#rawalerts').prepend('<div>' + time + ': ' + eventObject.dsplalert + ' ' + eventObject.alerttype + ' ' + eventObject.message + '</div>');
-        $('#rawalerts').contents().filter(':gt(20)').remove();
+        var time = new Date(eventObject.timecreated);
 
         // Check if we already have this one in the table already to prevent duplicates
         var indexes = table.rows().eq(0).filter(function (rowIdx) {
             if (
-                table.cell(rowIdx, 0).data().getTime() == time.getTime() && table.cell(rowIdx, 1).data() == eventObject.dsplalert && table.cell(rowIdx, 2).data() == eventObject.alerttype) {
+                table.cell(rowIdx, 0).data().getTime() == time.getTime() && table.cell(rowIdx, 1).data() == eventObject.displayname && table.cell(rowIdx, 2).data() == eventObject.alerttype) {
                 return true;
             }
             return false;
@@ -225,7 +221,7 @@ function onNewEvent(evt) {
             if (eventObject.message != null) message = eventObject.message;
             table.row.add([
                 time,
-                eventObject.dsplalert,
+                eventObject.displayname,
                 eventObject.alerttype,
                 message
             ]).draw();

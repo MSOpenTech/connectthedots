@@ -23,14 +23,14 @@ REM //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS I
 REM //  THE SOFTWARE.
 REM //  ---------------------------------------------------------------------------------
 
-set puttydir="C:\tools\raspberry\putty\"
+set puttydir="C:\software\putty\"
 set prjdir=..\..\
-set rpi_ip=10.0.1.18
+set rpi_ip=xxx.xxx.xxx.xxx
 set rpi_usr=pi
 set rpi_pw=raspberry
-set Configuration=Debug
-set GW_Home=GatewayService
-set Staging=%GW_Home%/Staging
+set Configuration=Release
+set GW_Home=ctdgtwy
+set Staging=%GW_Home%/staging
 set PUTTY_CMD=%puttydir%putty %rpi_usr%@%rpi_ip% -pw %rpi_pw% 
 set PSCP_CMD=%puttydir%pscp -pw %rpi_pw% 
 
@@ -43,24 +43,29 @@ echo mkdir  %Staging%  >> %temp%\gatewayservicemkdir.tmp
 %PUTTY_CMD% -m %temp%\gatewayservicemkdir.tmp
 
 echo Copying Gateway files
-%PSCP_CMD% %prjdir%WindowsService\bin\%Configuration%\*.* %rpi_usr%@%rpi_ip%:%Staging%/
-
+%PSCP_CMD% %prjdir%WindowsService\bin\%Configuration%\*.*                                                       %rpi_usr%@%rpi_ip%:%Staging%/
 %PSCP_CMD% %prjdir%DeviceAdapters\SerialPort\bin\%Configuration%\Microsoft.ConnectTheDots.SerialPortAdapter.dll %rpi_usr%@%rpi_ip%:%Staging%/
 %PSCP_CMD% %prjdir%DeviceAdapters\Socket\bin\%Configuration%\Microsoft.ConnectTheDots.SocketAdapter.dll         %rpi_usr%@%rpi_ip%:%Staging%/
-%PSCP_CMD% %prjdir%Tests\SocketServiceDeviceMock\bin\%Configuration%\SocketDeviceMock.exe                       %rpi_usr%@%rpi_ip%:%Staging%/
-%PSCP_CMD% %prjdir%Tests\DeviceAdapterTestMock\bin\%Configuration%\DataAdapterTestMock.dll                      %rpi_usr%@%rpi_ip%:%Staging%/
+REM %PSCP_CMD% %prjdir%Tests\SocketServiceDeviceMock\bin\%Configuration%\SocketDeviceMock.exe                       %rpi_usr%@%rpi_ip%:%Staging%/
+REM %PSCP_CMD% %prjdir%Tests\DeviceAdapterTestMock\bin\%Configuration%\DataAdapterTestMock.dll                      %rpi_usr%@%rpi_ip%:%Staging%/
+REM %PSCP_CMD% %prjdir%Tests\CoreTest\bin\%Configuration%\CoreTest.exe                                              %rpi_usr%@%rpi_ip%:%Staging%/
 
 echo copying scripts
-%PSCP_CMD% %prjdir%Scripts\RaspberryPi\autorun_once.sh    %rpi_usr%@%rpi_ip%:%Staging%/
-%PSCP_CMD% %prjdir%Scripts\RaspberryPi\autorun_install.sh %rpi_usr%@%rpi_ip%:%Staging%/
-%PSCP_CMD% %prjdir%Scripts\RaspberryPi\runonce.sh         %rpi_usr%@%rpi_ip%:%Staging%/
+%PSCP_CMD% %prjdir%Scripts\RaspberryPi\autorun_install.sh				%rpi_usr%@%rpi_ip%:%Staging%/
+%PSCP_CMD% %prjdir%Scripts\RaspberryPi\certificate_update.sh			%rpi_usr%@%rpi_ip%:%Staging%/
+%PSCP_CMD% %prjdir%Scripts\RaspberryPi\kill_all.sh					    %rpi_usr%@%rpi_ip%:%Staging%/
+%PSCP_CMD% %prjdir%Scripts\RaspberryPi\deploy_and_start_ctd_on_boot.sh	%rpi_usr%@%rpi_ip%:%GW_Home%/
 
 echo Marking autorun_once.sh and autorun_install.sh as executable
 del /f %temp%\rpigatewayautorunx.tmp
-echo chmod 755 %Staging%/runonce.sh            >> %temp%\rpigatewayautorunx.tmp
-echo chmod 755 %Staging%/autorun_once.sh       >> %temp%\rpigatewayautorunx.tmp
-echo chmod 755 %Staging%/autorun_install.sh    >> %temp%\rpigatewayautorunx.tmp
-echo dos2unix  %Staging%/runonce.sh            >> %temp%\rpigatewayautorunx.tmp
-echo dos2unix  %Staging%/autorun_once.sh       >> %temp%\rpigatewayautorunx.tmp
-echo dos2unix  %Staging%/autorun_install.sh    >> %temp%\rpigatewayautorunx.tmp
-%PUTTY_CMD% -m                                    %temp%\rpigatewayautorunx.tmp
+echo chmod 755 %Staging%/certificate_update.sh					>> %temp%\rpigatewayautorunx.tmp
+echo chmod 755 %Staging%/autorun_install.sh						>> %temp%\rpigatewayautorunx.tmp
+echo chmod 755 %Staging%/kill_all.sh							>> %temp%\rpigatewayautorunx.tmp
+echo chmod 755 %GW_Home%/deploy_and_start_ctd_on_boot.sh		>> %temp%\rpigatewayautorunx.tmp
+echo dos2unix  %Staging%/certificate_update.sh					>> %temp%\rpigatewayautorunx.tmp
+echo dos2unix  %Staging%/autorun_install.sh						>> %temp%\rpigatewayautorunx.tmp
+echo dos2unix  %Staging%/kill_all.sh							>> %temp%\rpigatewayautorunx.tmp
+echo dos2unix  %GW_Home%/deploy_and_start_ctd_on_boot.sh		>> %temp%\rpigatewayautorunx.tmp
+%PUTTY_CMD% -m													   %temp%\rpigatewayautorunx.tmp
+
+echo Run deploy_next.sh for any supplementary sensor files

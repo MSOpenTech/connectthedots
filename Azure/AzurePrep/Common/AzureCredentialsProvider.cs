@@ -59,16 +59,16 @@ namespace Microsoft.ConnectTheDots.CloudDeploy.Common
                 Console.WriteLine( listSize + ": " + subscription.SubscriptionName );
                 listSize++;
             }
-
+            
             string answer = Console.ReadLine( );
             int selection = 0;
             if( !int.TryParse( answer, out selection ) || selection >= listSize )
             {
                 return null;
             }
-
+            
             TokenCloudCredentials result =
-                AzureCredentialsProvider.GetCredentialsByUserADAuth( subscriptions[ selection - 1 ].SubscriptionId );
+                AzureCredentialsProvider.GetCredentialsByUserADAuth(subscriptions[selection - 1].SubscriptionId, subscriptions[selection - 1].ActiveDirectoryTenantId);
 
             return result;
         }
@@ -87,7 +87,6 @@ namespace Microsoft.ConnectTheDots.CloudDeploy.Common
 
                 ret = subscriptions;
             }
-
             return ret;
         }
 
@@ -95,7 +94,7 @@ namespace Microsoft.ConnectTheDots.CloudDeploy.Common
         {
             var doc = new XmlDocument( );
             doc.Load( fileName );
-            var certNode = doc.SelectSingleNode("/PublishData/PublishProfile/@ManagementCertificate" );
+            var certNode = doc.SelectSingleNode( "/PublishData/PublishProfile/@ManagementCertificate" );
             // Some publishsettings files (with multiple subscriptions?) have the management publisherCertificate under the Subscription
             if( certNode == null )
             {
@@ -114,15 +113,16 @@ namespace Microsoft.ConnectTheDots.CloudDeploy.Common
             return creds;
         }
 
-        public static TokenCloudCredentials GetCredentialsByUserADAuth( string subscriptionId = null )
+        public static TokenCloudCredentials GetCredentialsByUserADAuth( string subscriptionId = null, string tenantId = "" )
         {
             //ClientId and RedirectURI of this app
-            const string AUTH_CLIENT_ID = "08d635ff-dbfc-40af-874b-9c04831b2b38";
-            const string AUTH_REDIRECT_URI = "htttp://localhost/ctd";
+            const string AUTH_CLIENT_ID = "54b26534-1dd6-470a-a947-a0a557e22974";
+            const string AUTH_REDIRECT_URI = "http://localhost";
+            const string AUTH_TENANT_ID = "2616d166-c35d-4b6d-881a-ad37e1b1c765";
             //TenantId
-            const string AUTH_TENANT = "72f988bf-86f1-41af-91ab-2d7cd011db47";
+            string authTenant = String.IsNullOrEmpty( tenantId ) ? AUTH_TENANT_ID : tenantId;
 
-            string token = GetAuthHeader( AUTH_CLIENT_ID, AUTH_REDIRECT_URI, AUTH_TENANT );
+            string token = GetAuthHeader( AUTH_CLIENT_ID, AUTH_REDIRECT_URI, authTenant );
 
             var cred = ( subscriptionId == null )
                 ? new TokenCloudCredentials( token ) : new TokenCloudCredentials( subscriptionId, token );
@@ -140,10 +140,10 @@ namespace Microsoft.ConnectTheDots.CloudDeploy.Common
                 resource: "https://management.core.windows.net/",
                 clientId: clientId,
                 redirectUri: new Uri( redirectUri ),
-                parameters: new AuthorizationParameters( PromptBehavior.Auto, null )
+                parameters: new AuthorizationParameters( PromptBehavior.Always, null )
             ).Result;
 
-            return result.CreateAuthorizationHeader( ).Substring( "Bearer ".Length );
+            return result.AccessToken;
         }
     }
 }

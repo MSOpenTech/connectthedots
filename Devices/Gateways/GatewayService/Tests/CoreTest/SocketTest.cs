@@ -193,7 +193,7 @@ namespace Microsoft.ConnectTheDots.Test
                 _logger.LogInfo( String.Format( "task {0} status is '{1}'", t.Id, t.Status.ToString( ) ) );
             }
 
-            TaskWrapper.WaitAll( ( ( List<TaskWrapper> )messages ).ToArray( ) );
+            TaskWrapper.BatchWaitAll( ( ( List<TaskWrapper> )messages ).ToArray( ) );
 
             foreach( TaskWrapper t in messages )
             {

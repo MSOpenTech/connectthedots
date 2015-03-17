@@ -26,12 +26,15 @@ You will need to install the below software in this order to implement this .NET
 
 * Open the Visual Studio Solution for the .NET Micro Framework sample, located in the repo ConnectTheDots\devices\NETMF\ConnectTheDotsGadgeteer.sln.
 
-* Open the program.cs file and edit the 3 lines used to configure the AMQP connection to Event Hub using the information you got when setting up the Azure services using the ConnectTheDotsCloudDeploy tool. For the device-name, pick one of your choosing.
+* Open the program.cs file and edit the 6 lines below to configure the AMQP connection to Event Hub using the information you got when setting up the Azure services using the ConnectTheDotsCloudDeploy tool. For the device name, guid, organization and location, pick one of your choosing.
 
 ```
 const string AMQPAddress = "amqps://{key-name}:{shared-key}@{namespace}.servicebus.windows.net";
 const string EventHub = "{EventHub-name}";
-const string DeviceName = "{device-name}";
+const string SensorName = "{sensor-name}";
+const string SensorGUID = "{xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx}";
+const string Organization = "{organization}";
+const string Location = "{location}";
 ```
 
 * Once you have applied these changes to the code, connect the temperature & humidity sensor, the Ethernet adapter and the USB power extension to the Gadgeteer FEZ mainboard as shown in the picture below (temp sensor connected to slot 4, Ethernet adapter to slot 7, USB DP module to slot 1).

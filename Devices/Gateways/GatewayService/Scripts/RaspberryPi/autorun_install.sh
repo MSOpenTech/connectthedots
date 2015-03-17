@@ -23,29 +23,54 @@
 #  ---------------------------------------------------------------------------------
 #!/bin/bash
 
-export GW_HOME=~/GatewayService
-export LOGS=$GW_HOME/logs
 
 #
-# event log entries will be written to /var/lib/mono/EventLog/Application
+# the standard account for a Raspberry pi board is 'pi'
+# please change as needed across code base
+#
+export GW_ACCOUNT_HOME=/home/pi
+export GW_HOME=$GW_ACCOUNT_HOME/ctdgtwy
+export LOGS=$GW_HOME/logs
+
+echo "$(date) => autorun.sh: starting autorun.sh" >> $GW_HOME/boot_sequence.log
+#
+
+echo "Starting supplementary sensor script if present"
+echo "$(date) => autorun.sh: calling supplementary startup script autorun2.sh if necessary" >> $GW_HOME/boot_sequence.log
+$GW_HOME/autorun2.sh &
+#
+
+#
+# Start monitoring gateway process
+# Event log entries will be written to /var/lib/mono/EventLog/Application
 #
 echo "Setting MONO_EVENTLOG_TYPE to local"
 export MONO_EVENTLOG_TYPE=local
-#
-# Start monitoring gateway process
-#
 echo "Monitoring Gateway"
 LOG=monitor_$(date +"%m-%d-%Y-%T").log
 MONITORED="GatewayService"
 PERIOD=5
-DELETE_LOCK="sudo rm -f /tmp/Microsoft.ConnectTheDots.GatewayService.exe.lock"
-RESTART="/usr/bin/mono-service $GW_HOME/Microsoft.ConnectTheDots.GatewayService.exe"
+DELETE_LOCK="sudo rm -f /tmp/Microsoft.ConnectTheDots.GatewayService.exe.lock"	
+RESTART="sudo /usr/bin/mono-service $GW_HOME/Microsoft.ConnectTheDots.GatewayService.exe"
 
-cd $GW_HOME
 
+#
+# Consider using debug mode for mono 
+#
+#		export MONO_LOG_LEVEL=debug 
+#		/usr/bin/mono-service $GW_HOME/Microsoft.ConnectTheDots.GatewayService.exe --debug > monoOutput.txt &
+#
+
+echo Starting gateway from directory $(pwd)
+export MONO_PATH=$GW_HOME
+echo MONO_PATH is $MONO_PATH
+
+echo "$(date) => autorun.sh: starting permanent while loop" >> $GW_HOME/boot_sequence.log
 while :
 do
 	 test `ps ax | grep $MONITORED | awk '{ print $1;}' | wc | awk '{ print $1;}'` -gt 1 && RUNNING=1 || RUNNING=0
-	 test $RUNNING -eq 0 && echo "Restarting..." && $DELETE_LOCK && $RESTART || echo "$MONITORED is running..." >> $LOGS/$LOG
+	 test $RUNNING -eq 0 && echo "$(date) => Restarting $MONITORED..." >> $LOGS/$LOG && $DELETE_LOCK && $RESTART || echo "$(date) => $MONITORED is running..." >> $LOGS/$LOG
 	 sleep $PERIOD
 done
+
+echo "$(date) => autorun.sh: finished autorun.sh" >> $GW_HOME/boot_sequence.log

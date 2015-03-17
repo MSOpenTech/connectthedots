@@ -22,6 +22,9 @@
 //  THE SOFTWARE.
 //  ---------------------------------------------------------------------------------
 
+//#define DEBUG_LOG 
+
+
 namespace Microsoft.ConnectTheDots.Gateway
 {
     using System;
@@ -70,8 +73,6 @@ namespace Microsoft.ConnectTheDots.Gateway
 
         public int Enqueue( string jsonData )
         {
-            Logger.LogInfo( "Received from sensor" );
-
             if( jsonData != null )//not filling a queue by empty items
             {
                 QueuedItem sensorData = _dataTransform( jsonData );
@@ -101,9 +102,15 @@ namespace Microsoft.ConnectTheDots.Gateway
                 TaskWrapper.Run( ( ) => sh.SafeInvoke( data ) );
             }
 
+            //
+            // NO logging on production code, enable for diagnostic purposes for debugging 
+            //
+#if DEBUG_LOG
             LogMessageReceived( );
+#endif
         }
 
+#if DEBUG_LOG
         int _receivedMessages = 0;
         DateTime _start;
         private void LogMessageReceived( )
@@ -129,5 +136,6 @@ namespace Microsoft.ConnectTheDots.Gateway
                     String.Format( "GatewayService received {0} events succesfully in {1} ms ", Constants.MessagesLoggingThreshold, elapsed.TotalMilliseconds.ToString( ) ) ) );
             }
         }
+#endif
     }
 }

@@ -38,7 +38,7 @@ namespace Microsoft.ConnectTheDots.GatewayService
     public class WindowsService : ServiceBase
     {
         private const int STOP_TIMEOUT_MS = 5000; // ms
-        
+
         //--//
 
         private static WebServiceHost _webHost;
@@ -49,7 +49,7 @@ namespace Microsoft.ConnectTheDots.GatewayService
         private readonly GatewayQueue<QueuedItem>       _gatewayQueue;
         private readonly AMQPSender<SensorDataContract> _AMPQSender;
         private readonly EventProcessor                 _batchSenderThread;
-        private readonly DeviceAdapterLoader               _dataIntakeLoader;
+        private readonly DeviceAdapterLoader            _dataIntakeLoader;
 
         //--//
 
@@ -103,7 +103,7 @@ namespace Microsoft.ConnectTheDots.GatewayService
             }
             catch( Exception ex )
             {
-                _logger.LogInfo( "Exception creating WindowsService: " + ex.Message );
+                _logger.LogError( "Exception creating WindowsService: " + ex.Message );
             }
         }
 
@@ -177,8 +177,6 @@ namespace Microsoft.ConnectTheDots.GatewayService
                 logger = TunableLogger.FromLogger(
                     SafeLogger.FromLogger( EventLogger.Instance )
                     );
-
-                logger.LogInfo( "Creating WindowsService..." );
 
                 Run( new WindowsService( logger ) );
             }
