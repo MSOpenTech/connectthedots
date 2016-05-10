@@ -86,19 +86,21 @@ namespace Microsoft.ConnectTheDots.EHConsole
                 return false;
             }
             result.NamePrefix = selectedNamespace.Name;
-            result.Location = selectedNamespace.Region;
+            if( result.NamePrefix.EndsWith( "-ns" ) )
+            {
+                result.NamePrefix = result.NamePrefix.Substring( 0, result.NamePrefix.Length - 3 );
+            }
 
-            result.SBNamespace = result.NamePrefix + "-ns";
+            result.SBNamespace = selectedNamespace.Name;
             result.StorageAccountName = result.NamePrefix.ToLowerInvariant( ) + "storage";
+
+            result.Location = selectedNamespace.Region;
 
             return true;
         }
 
         bool Run( )
         {
-            var partitionCount = 8;
-            var receiverKeyName = "WebSite";
-
             CloudWebDeployInputs inputs = null;
             if( !GetInputs( out inputs ) )
             {
@@ -118,20 +120,11 @@ namespace Microsoft.ConnectTheDots.EHConsole
 
             EventHubDescription ehDevices = AzureConsoleHelper.SelectEventHub( nsManager, inputs.Credentials );
 
-            StorageManagementClient stgMgmt = new StorageManagementClient( inputs.Credentials );
-            var keyResponse = stgMgmt.StorageAccounts.GetKeys( inputs.StorageAccountName.ToLowerInvariant( ) );
-            if( keyResponse.StatusCode != System.Net.HttpStatusCode.OK )
-            {
-                Console.WriteLine( "Error retrieving access keys for storage account {0} in Location {1}: {2}",
-                    inputs.StorageAccountName, inputs.Location, keyResponse.StatusCode );
-                return false;
-            }
-
             var serviceNamespace = inputs.SBNamespace;
             var hubName = ehDevices.Path;
             
-            var sharedAccessAuthorizationRule = ehDevices.Authorization.First( ( d )
-                => String.Equals( d.KeyName, receiverKeyName, StringComparison.InvariantCultureIgnoreCase ) ) as SharedAccessAuthorizationRule;
+            var sharedAccessAuthorizationRule = ehDevices.Authorization.FirstOrDefault( ( d )
+                => d.Rights.Contains(AccessRights.Listen)) as SharedAccessAuthorizationRule;
 
             if( sharedAccessAuthorizationRule == null )
             {
@@ -139,6 +132,7 @@ namespace Microsoft.ConnectTheDots.EHConsole
                 return false;
             }
 
+            var receiverKeyName = sharedAccessAuthorizationRule.KeyName;
             var receiverKey = sharedAccessAuthorizationRule.PrimaryKey;
             //Console.WriteLine("Starting temperature processor with {0} partitions.", partitionCount);
 
@@ -146,6 +140,18 @@ namespace Microsoft.ConnectTheDots.EHConsole
 
             int closedReceivers = 0;
             AutoResetEvent receiversStopped = new AutoResetEvent( false );
+
+            MessagingFactory factory = MessagingFactory.Create(ServiceBusEnvironment.CreateServiceUri( "sb", serviceNamespace, "" ),
+                new MessagingFactorySettings
+                {
+                    TokenProvider = TokenProvider.CreateSharedAccessSignatureTokenProvider( receiverKeyName, receiverKey ),
+                    TransportType = TransportType.Amqp
+                } );
+
+            EventHubClient eventHubClient = factory.CreateEventHubClient( hubName );
+            EventHubConsumerGroup eventHubConsumerGroup = eventHubClient.GetDefaultConsumerGroup( );
+
+            int partitionCount = ehDevices.PartitionCount;
 
             for( int i = 0; i < partitionCount; i++ )
             {
@@ -155,15 +161,7 @@ namespace Microsoft.ConnectTheDots.EHConsole
                     {
                         _ConsoleBuffer.Add( string.Format( "Starting worker to process partition: {0}", state ) );
 
-                        var factory = MessagingFactory.Create( ServiceBusEnvironment.CreateServiceUri( "sb", serviceNamespace, "" ), new MessagingFactorySettings( )
-                        {
-                            TokenProvider = TokenProvider.CreateSharedAccessSignatureTokenProvider( receiverKeyName, receiverKey ),
-                            TransportType = TransportType.Amqp
-                        } );
-                
-                        var receiver = factory.CreateEventHubClient( hubName )
-                            .GetDefaultConsumerGroup( )
-                            .CreateReceiver( state.ToString( ), DateTime.UtcNow );
+                        var receiver = eventHubConsumerGroup.CreateReceiver( state.ToString( ), DateTime.UtcNow );
 
                         _ConsoleBuffer.Add( string.Format( "Waiting for start receiving messages: {0} ...", state ) );
 

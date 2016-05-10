@@ -2,7 +2,7 @@ This document explains how to set up the Windows Phone application to send the M
 It assumes that you have the right tools installed and that you have cloned or downloaded the ConnectTheDots.io project on your machine.
 
 ##Hardware requirements ##
-Check out the hardware requirements [here](hardware.md).
+Check out the hardware requirements [here](Hardware.md).
 
 ##Prerequisites ##
 

@@ -51,6 +51,6 @@ You'll need to create the website configuration info.  This is easily done by th
 * Login using your Azure subscription credentials
 * Select the namespace prefix and location you chose when creating the Event Hubs
 * The application has now created a web.config file and put it on your desktop. You need to copy that file over the existing web.config file in the ConnectTheDotsWebSite folder of the Website project before you publish your site.
-
+* Ensure that WebSockets are enabled for Azure Web App
 
 The next step in the getting started project is [Device Setup](../../Devices/DeviceSetup.md).

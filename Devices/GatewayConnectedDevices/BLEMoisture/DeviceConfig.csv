@@ -1,0 +1,4 @@
+MACAddress,DisplayName,Organization,Location,MeasureName,UnitsOfMeasure
+1,test,now,here,unknown,improbable
+2,foo,bar,what,that,impossible
+*,none,none,none,none,none

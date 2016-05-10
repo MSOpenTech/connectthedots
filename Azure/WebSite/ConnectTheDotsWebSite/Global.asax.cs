@@ -23,14 +23,18 @@
 //  ---------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Web.Http;
 using System.Web.Routing;
-
 using Microsoft.ServiceBus.Messaging;
 using Microsoft.WindowsAzure;
 using Microsoft.ServiceBus;
 using Microsoft.Azure;
+using Microsoft.WindowsAzure.Storage.Blob;
+
+using ConnectTheDotsWebSite.Helpers;
 
 namespace ConnectTheDotsWebSite
 {
@@ -81,6 +85,7 @@ namespace ConnectTheDotsWebSite
             eventHubDevicesSettings.processorHost.UnregisterEventProcessorAsync().Wait();
             eventHubAlertsSettings.processorHost.UnregisterEventProcessorAsync().Wait();
         }
+        
         private void CreateEventProcessorHostClient(ref EventHubSettings eventHubSettings)
         {
             Trace.TraceInformation("Creating EventProcessorHost: {0}, {1}, {2}", this.Server.MachineName, eventHubSettings.name, eventHubSettings.consumerGroup);
@@ -91,13 +96,36 @@ namespace ConnectTheDotsWebSite
 
                 // Delete and recreate the consumer group
                 // this allows to ensure we will start receiving only fresh messages when the site starts
-            
+
                 foreach (ConsumerGroupDescription consumerGroupDesc in eventHubSettings.namespaceManager.GetConsumerGroups(eventHubSettings.client.Path))
                 {
                     // We remove any previously created consumergroups containing the word WebSite in the name
-                    if (consumerGroupDesc.Name.ToLowerInvariant().Contains("website") && !String.IsNullOrEmpty(Environment.GetEnvironmentVariable("WEBSITE_SITE_NAME"))
-                        || consumerGroupDesc.Name.ToLowerInvariant().Contains("local") && String.IsNullOrEmpty(Environment.GetEnvironmentVariable("WEBSITE_SITE_NAME")))
+                    if (consumerGroupDesc.Name.ToLowerInvariant().Contains("website") &&
+                        !String.IsNullOrEmpty(Environment.GetEnvironmentVariable("WEBSITE_SITE_NAME"))
+                        ||
+                        consumerGroupDesc.Name.ToLowerInvariant().Contains("local") &&
+                        String.IsNullOrEmpty(Environment.GetEnvironmentVariable("WEBSITE_SITE_NAME")))
+                    {
                         eventHubSettings.namespaceManager.DeleteConsumerGroup(eventHubSettings.name, consumerGroupDesc.Name);
+                    }   
+                }
+
+                //Workaround to delete old blobs related to old consumer groups
+                CloudBlobContainer eventHubBlobContainer = BlobHelper.SetUpContainer(eventHubSettings.storageConnectionString, eventHubSettings.name);
+
+                string blobPerfix = String.IsNullOrEmpty(Environment.GetEnvironmentVariable("WEBSITE_SITE_NAME")) ? "local" : "website";
+
+                IEnumerable<CloudBlockBlob> oldBlobs= eventHubBlobContainer.ListBlobs(blobPerfix, true, BlobListingDetails.All).OfType<CloudBlockBlob>();
+                foreach (var blob in oldBlobs)
+                {
+                    try
+                    {
+                        blob.DeleteIfExists();
+                    }
+                    catch (Exception)
+                    {
+                        Debug.Print("Error happened while trying to delete old ConsumerGroup related blob.");
+                    }
                 }
             }
             catch

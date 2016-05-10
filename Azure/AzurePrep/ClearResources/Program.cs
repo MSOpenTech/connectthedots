@@ -88,15 +88,19 @@ namespace Microsoft.ConnectTheDots.CloudDeploy.ClearResources
                 return false;
             }
             result.NamePrefix = selectedNamespace.Name;
+            if( result.NamePrefix.EndsWith( "-ns") )
+            {
+                result.NamePrefix = result.NamePrefix.Substring( 0, result.NamePrefix.Length - 3 );
+            }
+
+            result.SBNamespace = selectedNamespace.Name;
+            result.StorageAccountName = result.NamePrefix.ToLowerInvariant( ) + "storage";
 
             if( selectedNamespace.Region != null )
             {
                 result.NamespaceExists = true;
                 result.Location = selectedNamespace.Region;
             }
-
-            result.SBNamespace = result.NamePrefix + "-ns";
-            result.StorageAccountName = result.NamePrefix.ToLowerInvariant( ) + "storage";
 
             return true;
         }

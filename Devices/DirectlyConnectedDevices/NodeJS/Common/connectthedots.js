@@ -131,14 +131,8 @@ exports.init_connection = function(settings, token)
     }
  };
 
-// ---------------------------------------------------------------
-// Send message to Event Hub
-exports.send_message = function(measurename, unitofmeasure, value)
+function send_raw_message(raw_message)
 {
-    var currentTime = new Date().toISOString();
-    var message = format_sensor_data(devicesettings.guid, devicesettings.displayname, devicesettings.organization, devicesettings.location, measurename, unitofmeasure, currentTime, value);
-	console.log("Sending message: " + message);
-    
     // Send the request to the Event Hub
     var http_options = {
             
@@ -148,7 +142,7 @@ exports.send_message = function(measurename, unitofmeasure, value)
         method: 'POST',
         headers: {
             'Authorization': sastoken,
-            'Content-Length': message.length,
+            'Content-Length': raw_message.length,
             'Content-Type': 'application/atom+xml;type=entry;charset=utf-8'
         }
     };
@@ -169,12 +163,36 @@ exports.send_message = function(measurename, unitofmeasure, value)
         update_sas_token();
     });
         
-    req.write(message);
+    req.write(raw_message);
         
-    req.end();
+    req.end();    
 }
 
+// ---------------------------------------------------------------
+// Send message to Event Hub
+exports.send_message = function(measurename, unitofmeasure, value)
+{
+    var currentTime = new Date().toISOString();
+    var message = format_sensor_data(devicesettings.guid, devicesettings.displayname, devicesettings.organization, devicesettings.location, measurename, unitofmeasure, currentTime, value);
+	console.log("Sending message: " + message);
+    
+    send_raw_message(message);
+}
 
+// ---------------------------------------------------------------
+// Send bulk messages to Event Hub
+exports.send_bulk_message = function(messages)
+{
+    var currentTime = new Date().toISOString();
+    var message;
+    
+    messages.forEach( function(element, index, array){
+        message+= format_sensor_data(devicesettings.guid, devicesettings.displayname, devicesettings.organization, devicesettings.location, element.measurename, element.unitofmeasure, currentTime, element.value);
+    }); 
+	console.log("Sending bulk message: " + message);
+    
+    send_raw_message(message);
+}
 
 
 

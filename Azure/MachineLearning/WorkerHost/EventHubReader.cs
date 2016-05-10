@@ -28,6 +28,7 @@ namespace WorkerHost
         private Dictionary<string, CircularBuffer<SensorDataContract>> _buffers;
         private object _lock = new object();
         //object _lockNoData = new object();
+        private string _measureNameFilter;
 
         internal ManualResetEvent FailureEvent = new ManualResetEvent(false);
 
@@ -56,7 +57,7 @@ namespace WorkerHost
             }
         }
 
-        public void Run(string connectionString, string hubName)
+        public void Run(string connectionString, string hubName, string measureNameFilter)
         {
             NamespaceManager nsmgr = NamespaceManager.CreateFromConnectionString(connectionString);
             EventHubDescription desc = nsmgr.GetEventHub(hubName);
@@ -76,6 +77,7 @@ namespace WorkerHost
 
             _tasks = new Task[numPartitions];
             _buffers = new Dictionary<string, CircularBuffer<SensorDataContract>>();
+            _measureNameFilter = measureNameFilter;
 
             for (int iPart = 0; iPart < desc.PartitionCount; iPart++)
             {
@@ -132,19 +134,24 @@ namespace WorkerHost
 
                         var from = sensorData.UniqueId();
 
-                        lock (_lock)
+                        // Filter on MeasureName
+                        if ((_measureNameFilter.Length == 0) ||
+                             (_measureNameFilter.IndexOf(sensorData.MeasureName) >= 0))
                         {
-                            CircularBuffer<SensorDataContract> buffer;
-                            if (!_buffers.TryGetValue(from, out buffer))
+                            lock (_lock)
                             {
-                                buffer = new CircularBuffer<SensorDataContract>(_bufferSize);
-                                _buffers.Add(from, buffer);
-                            }
-                    
-                            buffer.Add(sensorData);
+                                CircularBuffer<SensorDataContract> buffer;
+                                if (!_buffers.TryGetValue(from, out buffer))
+                                {
+                                    buffer = new CircularBuffer<SensorDataContract>(_bufferSize);
+                                    _buffers.Add(from, buffer);
+                                }
+
+                                buffer.Add(sensorData);
 #if DEBUG_LOG
-                            Console.WriteLine("Data from device {0}, Total count: {1}", from, buffer.Count);
+                                Console.WriteLine("Data from device {0}, Total count: {1}", from, buffer.Count);
 #endif
+                            }
                         }
                     }
                     catch (Exception)

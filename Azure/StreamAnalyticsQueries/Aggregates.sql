@@ -1,4 +1,4 @@
-﻿/*  ---------------------------------------------------------------------------------
+/*  ---------------------------------------------------------------------------------
 //  Copyright (c) Microsoft Open Technologies, Inc.  All rights reserved.
 // 
 //  The MIT License (MIT)
@@ -28,13 +28,13 @@ Select
     'All Sensors' AS location,
     'All Sensors' AS organization,
     'ace60e7c-a6aa-4694-ba86-c3b66952558e' AS guid,
-    'Temp Average' as displayname,
+    'Average' as displayname,
     Max(timecreated) as timecreated,
     Avg(value) AS value
 From
     DevicesInput TIMESTAMP BY timecreated
 where
-    measurename = 'temperature' OR measurename='Temperature'
+    measurename = 'temperature' OR measurename='Temperature'  OR measurename = 'Humidity' OR measurename='humidity'
 Group by
     measurename, unitofmeasure,
-    TumblingWindow(Second, 10)
+    TumblingWindow(Second, 15)

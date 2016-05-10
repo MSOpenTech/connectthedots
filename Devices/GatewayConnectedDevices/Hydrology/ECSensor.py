@@ -1,4 +1,4 @@
-'''
+﻿'''
  Copyright (c) Microsoft Open Technologies, Inc.  All rights reserved.
 
  The MIT License (MIT)
@@ -28,10 +28,10 @@ import time 	# used for sleep delay and timestamps
 import string 	# helps parse strings
 
 class ECSensor:
-    long_timeout = 		1.5		# the timeout needed to query readings and calibrations
-    short_timeout = 	.3 		# timeout for regular commands
-    default_bus = 		1 		# the default bus for I2C on the newer Raspberry Pis, certain older boards use bus 0
-    default_address = 	100 	# the default address for the EC sensor
+    long_timeout =      1.5		# the timeout needed to query readings and calibrations
+    short_timeout =     .3 		# timeout for regular commands
+    default_bus =       1 		# the default bus for I2C on the newer Raspberry Pis, certain older boards use bus 0
+    default_address =   100 	# the default address for the EC sensor
 
     def __init__(self, address = default_address, bus = default_bus):
         # open two file streams, one for reading and one for writing
@@ -59,9 +59,9 @@ class ECSensor:
         
     def read(self, num_of_bytes = 31):
         # reads a specified number of bytes from I2C, then parses and displays the result
-        res = self.file_read.read(num_of_bytes) 		# read from the board
-        response = filter(lambda x: x != '\x00', res) 	# remove the null characters to get the response
-        if(ord(response[0]) == 1): 						# if the response isnt an error
+        res = self.file_read.read(num_of_bytes)         # read from the board
+        response = filter(lambda x: x != '\x00', res)   # remove the null characters to get the response
+        if(ord(response[0]) == 1):                      # if the response isnt an error
             char_list = map(lambda x: chr(ord(x) & ~0x80), list(response[1:])) # change MSB to 0 for all received characters except the first and get a list of characters 
             # NOTE: having to change the MSB to 0 is a glitch in the raspberry pi, and you shouldn't have to do this!
             return "Command success:" + ''.join(char_list) # convert the char list to a string and returns it
@@ -85,15 +85,13 @@ class ECSensor:
         self.file_read.close()
         self.file_write.close()
 
-
-
 def main () :
-	device = ECSensor()
-	try:
-		while True:
-			print(device.query("R"))
-	except KeyboardInterrupt: # catches the ctrl-c command, which breaks the loop above
-		print("Continuous polling stopped")
+    device = ECSensor()
+    try:
+        while True:
+            print(device.query("R"))
+    except KeyboardInterrupt: # catches the ctrl-c command, which breaks the loop above
+        print("Continuous polling stopped")
 
 if __name__ == '__main__':
     main()

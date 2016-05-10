@@ -1,11 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkerHost", "WorkerHost\WorkerHost.csproj", "{25079398-1602-45EE-837C-D4195A1FBC27}"
 EndProject
 Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "WorkerRole", "WorkerRole\WorkerRole.ccproj", "{73173D11-AA67-4089-91D5-BBE0BD4C5444}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SQL", "SQL", "{09DB6871-3FA4-4C09-B41C-CE017586DC5D}"
+EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "SQL", "SQL\SQL.sqlproj", "{37FA4922-AC28-474C-9EB9-1544437997F8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,8 +25,17 @@ Global
 		{73173D11-AA67-4089-91D5-BBE0BD4C5444}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{73173D11-AA67-4089-91D5-BBE0BD4C5444}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{73173D11-AA67-4089-91D5-BBE0BD4C5444}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37FA4922-AC28-474C-9EB9-1544437997F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37FA4922-AC28-474C-9EB9-1544437997F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37FA4922-AC28-474C-9EB9-1544437997F8}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{37FA4922-AC28-474C-9EB9-1544437997F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37FA4922-AC28-474C-9EB9-1544437997F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37FA4922-AC28-474C-9EB9-1544437997F8}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{37FA4922-AC28-474C-9EB9-1544437997F8} = {09DB6871-3FA4-4C09-B41C-CE017586DC5D}
 	EndGlobalSection
 EndGlobal

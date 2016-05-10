@@ -162,12 +162,6 @@ namespace Microsoft.ConnectTheDots.CloudDeploy.Common
 
                 if( ConsoleHelper.Confirm( "Are you sure you want to select " + namespaces[ selection - 1 ].Name + " namespace?" ) )
                 {
-                    if( namespaces[ selection - 1 ].Name.EndsWith( "-ns" ) )
-                    {
-                        namespaces[ selection - 1 ].Name = namespaces[ selection - 1 ].Name.Substring( 0,
-                            namespaces[ selection - 1 ].Name.Length - 3 );
-                    }
-
                     return namespaces[ selection - 1 ];
                 }
             }

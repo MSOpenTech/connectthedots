@@ -1,4 +1,4 @@
-'''
+﻿'''
  Copyright (c) Microsoft Open Technologies, Inc.  All rights reserved.
 
  The MIT License (MIT)
@@ -55,92 +55,89 @@ ADV_NONCONN_IND=0x03
 ADV_SCAN_RSP=0x04
 
 def eventHandler(macAddress, value):
-	f(macAddress,value)
+    f(macAddress,value)
 
 class BLEMoistureSensor:
 
-	sock = None
-	callback = None
-	dev_id = 0
-	
-	def __init__(self) :
-		try:
-			self.sock = bluez.hci_open_dev(self.dev_id)
-			old_filter = self.sock.getsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, 14)
-			enable = 1
-			cmd_pkt = struct.pack("<BB", enable, 0x00)
-			bluez.hci_send_cmd(self.sock, OGF_LE_CTL, OCF_LE_SET_SCAN_ENABLE, cmd_pkt)
-			
-		except:
-			print "error accessing blue tooth device..."
-			sys.exit(1)
-	
-	def printpacket(self, pkt):
-		print "in printpacket"
-		for c in pkt:
-			sys.stdout.write("%02x " % struct.unpack("B",c)[0])
+    sock = None
+    callback = None
+    dev_id = 0
+    
+    def __init__(self) :
+        try:
+            self.sock = bluez.hci_open_dev(self.dev_id)
+            old_filter = self.sock.getsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, 14)
+            enable = 1
+            cmd_pkt = struct.pack("<BB", enable, 0x00)
+            bluez.hci_send_cmd(self.sock, OGF_LE_CTL, OCF_LE_SET_SCAN_ENABLE, cmd_pkt)
+            
+        except:
+            print "error accessing blue tooth device..."
+            sys.exit(1)
+    
+    def printpacket(self, pkt):
+        print "in printpacket"
+        for c in pkt:
+            sys.stdout.write("%02x " % struct.unpack("B",c)[0])
 
-	def packed_bdaddr_to_string(self, bdaddr_packed):
-		return ''.join('%02x'%i for i in struct.unpack("<BBBBBB", bdaddr_packed[::-1]))
+    def packed_bdaddr_to_string(self, bdaddr_packed):
+        return ''.join('%02x'%i for i in struct.unpack("<BBBBBB", bdaddr_packed[::-1]))
 
-	
-	# func( macAddress, value )
-	def setSensorDataAvailableEvent(self, func):
-		self.callback = func
-		
-	def Listen(self):
-		try:
-			old_filter = self.sock.getsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, 14)
+    # func( macAddress, value )
+    def setSensorDataAvailableEvent(self, func):
+        self.callback = func
+        
+    def Listen(self):
+        try:
+            old_filter = self.sock.getsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, 14)
 
-			# perform a device inquiry on blue tooth device #0
-			# The inquiry should last 8 * 1.28 = 10.24 seconds
-			# before the inquiry is performed, bluez should flush its cache of
-			# previously discovered devices
-			flt = bluez.hci_filter_new()
-			bluez.hci_filter_all_events(flt)
-			bluez.hci_filter_set_ptype(flt, bluez.HCI_EVENT_PKT)
-			self.sock.setsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, flt )
-			while True:
-				pkt = self.sock.recv(255)
-				ptype, event, plen = struct.unpack("BBB", pkt[:3])
+            # perform a device inquiry on blue tooth device #0
+            # The inquiry should last 8 * 1.28 = 10.24 seconds
+            # before the inquiry is performed, bluez should flush its cache of
+            # previously discovered devices
+            flt = bluez.hci_filter_new()
+            bluez.hci_filter_all_events(flt)
+            bluez.hci_filter_set_ptype(flt, bluez.HCI_EVENT_PKT)
+            self.sock.setsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, flt )
+            while True:
+                pkt = self.sock.recv(255)
+                ptype, event, plen = struct.unpack("BBB", pkt[:3])
 
-				if event == bluez.EVT_INQUIRY_RESULT_WITH_RSSI:
-					i =0
-				elif event == bluez.EVT_NUM_COMP_PKTS:
-						i =0 
-				elif event == bluez.EVT_DISCONN_COMPLETE:
-						i =0 
-				elif event == LE_META_EVENT:
-					subevent, = struct.unpack("B", pkt[3])
-					pkt = pkt[4:]
-					if subevent == EVT_LE_CONN_COMPLETE:
-						le_handle_connection_complete(pkt)
-					elif subevent == EVT_LE_ADVERTISING_REPORT:
-						#print "advertising report"
-						num_reports = struct.unpack("B", pkt[0])[0]
-						report_pkt_offset = 0
-						for i in range(0, num_reports):
-							if (DEBUG == True):
-								print "-------------"
-								print "\t", "full packet: ", self.printpacket(pkt)
-								print "\t", "MAC address: ", self.packed_bdaddr_to_string(pkt[report_pkt_offset + 3:report_pkt_offset + 9])
-							# build the return string
-							id = pkt[report_pkt_offset +12: report_pkt_offset +26] 
-							if (DEBUG == True):
-								print "\t", "id: ", id
-							if (id == 'MSOT_BLE_Demo:'):
-								# MAC address
-								macAddress = self.packed_bdaddr_to_string(pkt[report_pkt_offset + 3:report_pkt_offset + 9])
-								# string representation of Water Volume Content (unit-less) floating point value
-								value = pkt[report_pkt_offset + 26: report_pkt_offset + 36] 
-								if (DEBUG == True):
-									print "\t", "address=", macAddress, " value=", value
-								if( self.callback != None ):
-									print "calling event handler"
-									self.callback( macAddress, value )
-		except:
-			self.sock.setsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, old_filter )
-			print "error in BLE Listen loop"
-			sys.exit(1)
-
-		
+                if event == bluez.EVT_INQUIRY_RESULT_WITH_RSSI:
+                    i =0
+                elif event == bluez.EVT_NUM_COMP_PKTS:
+                        i =0 
+                elif event == bluez.EVT_DISCONN_COMPLETE:
+                        i =0 
+                elif event == LE_META_EVENT:
+                    subevent, = struct.unpack("B", pkt[3])
+                    pkt = pkt[4:]
+                    if subevent == EVT_LE_CONN_COMPLETE:
+                        le_handle_connection_complete(pkt)
+                    elif subevent == EVT_LE_ADVERTISING_REPORT:
+                        #print "advertising report"
+                        num_reports = struct.unpack("B", pkt[0])[0]
+                        report_pkt_offset = 0
+                        for i in range(0, num_reports):
+                            if (DEBUG == True):
+                                print "-------------"
+                                print "\t", "full packet: ", self.printpacket(pkt)
+                                print "\t", "MAC address: ", self.packed_bdaddr_to_string(pkt[report_pkt_offset + 3:report_pkt_offset + 9])
+                            # build the return string
+                            id = pkt[report_pkt_offset +12: report_pkt_offset +26] 
+                            if (DEBUG == True):
+                                print "\t", "id: ", id
+                            if (id == 'MSOT_BLE_Demo:'):
+                                # MAC address
+                                macAddress = self.packed_bdaddr_to_string(pkt[report_pkt_offset + 3:report_pkt_offset + 9])
+                                # string representation of Water Volume Content (unit-less) floating point value
+                                value = pkt[report_pkt_offset + 26: report_pkt_offset + 36] 
+                                if (DEBUG == True):
+                                    print "\t", "address=", macAddress, " value=", value
+                                if( self.callback != None ):
+                                    print "calling event handler"
+                                    self.callback( macAddress, value )
+        except:
+            self.sock.setsockopt( bluez.SOL_HCI, bluez.HCI_FILTER, old_filter )
+            print "error in BLE Listen loop"
+            sys.exit(1)

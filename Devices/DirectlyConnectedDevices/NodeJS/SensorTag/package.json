@@ -12,9 +12,8 @@
   "dependencies": {
     "async": "^1.4.2",
     "crypto": "0.0.3",
-    "lodash": "^3.10.1",
     "moment": "^2.10.6",
-    "request": "^2.61.0",
-    "sensortag": "^1.1.1"
+    "sensortag": "^1.1.1",
+    "connectthedots": "file:../Common"
   }
 }

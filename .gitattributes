@@ -1,7 +1,38 @@
 ###############################################################################
 # Set default behavior to automatically normalize line endings.
 ###############################################################################
-* text=auto
+# Prevent from further automatic changes
+* text=binary
+
+###############################################################################
+# We assume following configuration
+# Some sh files and other could be changed from Windows too
+###############################################################################
+#* text=auto
+#*.sln text eol=crlf
+#*.csproj text eol=crlf
+#*.cs text eol=crlf
+#*.cpp text eol=crlf
+#*.h text eol=crlf
+#*.config text eol=crlf
+#*.sql text eol=crlf
+#*.asax text eol=crlf
+#*.css text eol=crlf
+#*.js text eol=crlf
+#*.xsd text eol=crlf
+#
+#*.wxs text eol=crlf
+#*.wixproj text eol=crlf
+#
+#*.cmd text eol=crlf
+#
+#*.ino text eol=lf
+#*.py text eol=lf
+#*.sh text eol=lf
+#
+#Devices\DirectlyConnectedDevices\NodeJS\*.* text=binary
+#Devices\DirectlyConnectedDevicesParticleCore\*.* text=binary
+###############################################################################
 
 ###############################################################################
 # Set default behavior for command prompt diff.

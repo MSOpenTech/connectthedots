@@ -419,10 +419,28 @@ d3Chart.prototype = {
         var wasBoundsChanged = !self._previousBounds || self._previousBounds.maxVal0 !== maxVal[0] || self._previousBounds.minVal0 !== minVal[0];
 
         if (!self._wasResizeHandled || wasBoundsChanged && minVal[0] < Number.MAX_VALUE) {
-            var scaleMargin = (maxVal[0] - minVal[0]) * 10 / 100;
+            var diff = maxVal[0] - minVal[0];
+            var scaleMargin =  diff * 10 / 100;
+            
+            if (!isFinite(scaleMargin)) {
+                scaleMargin = 0;
+            }
+            
+            var v1 = Math.abs(minVal[0] - scaleMargin);
+            var v2 = Math.abs(maxVal[0] + scaleMargin);
+            if (!isFinite(v1)) {
+                v1 = minVal[0];
+            }
+            if (!isFinite(v2)) {
+                v2 = maxVal[0];
+            }
+            if (v2 < v1) {
+                v2 = v1;
+            }
+            
             self._y0 = self._y0
-				.domain([minVal[0] - scaleMargin, maxVal[0] + scaleMargin]);
-
+             		.domain([v1, v2]);
+             		
             var yAxisLeft = d3.svg.axis()
 				.scale(self._y0)
 				.orient("left")
@@ -435,11 +453,29 @@ d3Chart.prototype = {
         wasBoundsChanged = !self._previousBounds || self._previousBounds.maxVal1 !== maxVal[1] || self._previousBounds.minVal1 !== minVal[1];
 
         if (!self._wasResizeHandled || wasBoundsChanged && minVal[1] < Number.MAX_VALUE) {
-            var scaleMargin = (maxVal[1] - minVal[1]) * 10 / 100;
-
+            var diff = maxVal[1] - minVal[1];
+            var scaleMargin = (diff) * 10 / 100;
+            
+	    if (!isFinite(scaleMargin)) {
+                scaleMargin = 0;
+            }
+            
+            var v1 = Math.abs(minVal[1] - scaleMargin);
+            var v2 = Math.abs(maxVal[1] + scaleMargin);
+            
+            if (!isFinite(v1)) {
+                v1 = minVal[1];
+            }
+            if (!isFinite(v2)) {
+                v2 = maxVal[1];
+            }
+            if (v2 < v1) {
+                v2 = v1;
+            }
+            
             self._y1 = self._y1
-				.domain([minVal[1] - scaleMargin, maxVal[1] + scaleMargin]);
-
+				.domain([v1,v2]);
+            
             var yAxisRight = d3.svg.axis()
 				.scale(self._y1)
 				.orient("right")

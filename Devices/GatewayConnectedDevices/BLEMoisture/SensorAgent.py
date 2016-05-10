@@ -1,4 +1,4 @@
-'''
+﻿'''
  Copyright (c) Microsoft Open Technologies, Inc.  All rights reserved.
 
  The MIT License (MIT)
@@ -24,79 +24,118 @@ import socket
 import time
 import datetime
 import re
-
-from BLEMoistureSensor import BLEMoistureSensor
+import csv
+import sys
 
 Debug = False
 
-Org      = "Your organization";
-Disp     = "Sensor display name" 				       # will be the label for the curve on the chart
-GUID     = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"  # ensures all the data from this sensor appears on the same chart. You can use the Tools/Create GUID in Visual Studio to create.
-            						   # The last 6 bytes will be replaced with the mac address of the BLE module that is transmitting the moisture data.
-Locn     = "Sensor location";
+IronPythonPlatform = 'cli'
 
-Vendor   = 0xfffe                                  # Vendor ID for our custom device
-Product  = 0xfffe                                  # Product ID for our custom device
-
-HOST     = '127.0.0.1'   
-PORT     = 5002
+if sys.platform != IronPythonPlatform:
+    from BLEMoistureSensor import BLEMoistureSensor
 
 CONNECT_RETRY_INTERVAL = 2
-EXCEPTION_THRESHOLD    = 3
-SEND_INTERVAL          = 5
+EXCEPTION_THRESHOLD = 3
+SEND_INTERVAL = 5
 
 s = None
-		
-def processSensorData( macAddress, value ) :
-        global s
-	timeStr = datetime.datetime.utcnow().isoformat()
-		
-	# replace last group of digits with mac address of BLE sensor board
-	deviceID = GUID
-	deviceID = deviceID[:24] + macAddress
-		
-	JSONString = "{"
-	JSONString += "\"value\":" 				+ value
-	JSONString += ",\"guid\":\"" 			+ deviceID
-	JSONString += "\",\"organization\":\"" 	+ Org
-	JSONString += "\",\"displayname\":\"" 	+ Disp
-	JSONString += "\",\"unitofmeasure\":\"" + "vol/vol"
-	JSONString += "\",\"measurename\":\"" 	+ "WaterContent"
-	JSONString += "\",\"location\":\"" 		+ Locn
-	JSONString += "\",\"timecreated\":\"" 	+ timeStr + "\""
-	JSONString += "}"
+deviceConfig = {}
+sensorAgentConfig = None
 
-	if Debug == True:
-		print "JSONString=", JSONString
+def processSensorData(macAddress, value) :
+    global s
+    global deviceConfig
+    global sensorAgentConfig
+    timeStr = datetime.datetime.utcnow().isoformat()
 
-	if s != None :
-		s.send("<" + JSONString + ">");         # sends to gateway over socket interface
-		
+    macAddressRecognized = False
+
+    # replace last group of digits with mac address of BLE sensor board
+    deviceID = sensorAgentConfig["GUID"]
+    deviceID = deviceID[:24] + macAddress
+    JSONString = "{"
+    JSONString += "\"value\": %s" % value
+    JSONString += ",\"guid\":\"" + deviceID
+
+    macAddressKey = macAddress
+    displayName = ""
+    if macAddress in deviceConfig:
+        macAddressRecognized = True
+        displayName = deviceConfig[macAddressKey]["DisplayName"]
+    elif '*' in deviceConfig:
+        macAddressKey = '*'
+        macAddressRecognized = True
+        displayName = macAddress
+
+    if macAddressRecognized == True:
+        JSONString += "\",\"organization\":\"" + deviceConfig[macAddressKey]["Organization"]
+        JSONString += "\",\"displayname\":\"" + displayName
+        JSONString += "\",\"unitofmeasure\":\"" + deviceConfig[macAddressKey]["UnitsOfMeasure"]
+        JSONString += "\",\"measurename\":\"" + deviceConfig[macAddressKey]["MeasureName"]
+        JSONString += "\",\"location\":\"" + deviceConfig[macAddressKey]["Location"]
+        JSONString += "\",\"timecreated\":\"" + timeStr + "\""
+        JSONString += "}"
+
+        if Debug == True:
+            print "JSONString=", JSONString
+        if s != None :
+            # send JSON string to gateway over socket interface
+            s.send("<" + JSONString + ">")
+
 def main() :
-	try:
-                global s
-		# setup moisture sensor
-		moistureSensor = BLEMoistureSensor()
-		moistureSensor.setSensorDataAvailableEvent(processSensorData)
+    global s
+    global deviceConfig
+    global sensorAgentConfig
 
-		# setup server socket
-		if Debug == False :
-			s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-			print("Socket created.")
-			while True:
-				try:
-					s.connect((HOST, PORT));
-					break;
-				except socket.error as msg:
-					print("Socket connection failed. Error Code : " + str(msg[0]) + " Message " + msg[1])
-					time.sleep(CONNECT_RETRY_INTERVAL)
-                        print ("Socket connection succeeded.")
+    # parse SensorAgent configuration CSV file
+    try:
+        with open('SensorAgentConfig.csv') as sensorAgentConfigFile:
+            sensorAgentConfigSource = csv.DictReader(sensorAgentConfigFile) 
+            for row in sensorAgentConfigSource :
+                sensorAgentConfig = row
+                # we only care about first row in config file
+                break;
+    except:
+        print "Error reading config file. Please correct before continuing."
+        sys.exit()
 
-		# this will listen forever for advertising events and call processSensorData() when data arrives
-		moistureSensor.Listen();
 
-	except KeyboardInterrupt: 
-		print("Continuous polling stopped")
-	        
+    # parse device configuration (BLE device) CSV file
+    try:
+        with open('DeviceConfig.csv') as deviceConfigFile:
+            deviceConfigSource = csv.DictReader(deviceConfigFile) 
+            for row in deviceConfigSource:
+                deviceConfig[row["MACAddress"]] = row
+    except:
+        print "Error reading config file. Please correct before continuing."
+        sys.exit()
+
+    try:
+        # setup moisture sensor
+        if sys.platform != 'cli':
+            moistureSensor = BLEMoistureSensor()
+            moistureSensor.setSensorDataAvailableEvent(processSensorData)
+
+        # setup server socket
+        if Debug == False :
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            print "Socket created."
+            while True:
+                try:
+                    s.connect((sensorAgentConfig["Host"], int(sensorAgentConfig["Port"])))
+                    break
+                except socket.error as msg:
+                    print "Socket connection failed. Error Code : " + str(msg[0]) + " Message " + msg[1]
+                    time.sleep(CONNECT_RETRY_INTERVAL)
+                    print "Socket connection succeeded."
+
+        # this will listen forever for advertising events and call
+        # processSensorData() when data arrives
+        if sys.platform != IronPythonPlatform:
+            moistureSensor.Listen()
+
+    except KeyboardInterrupt: 
+        print "Continuous polling stopped"
+
 if __name__ == '__main__':
     main()

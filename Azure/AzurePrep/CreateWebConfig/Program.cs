@@ -78,8 +78,6 @@ namespace Microsoft.ConnectTheDots.CloudDeploy.CreateWebConfig
                 Console.WriteLine( "Quiting..." );
                 return false;
             }
-            result.NamePrefix = selectedNamespace.Name;
-            result.Location = selectedNamespace.Region;
 /*
             Console.WriteLine( "Need to select or not Transform flag." );
             Console.WriteLine( "If selected, the input and output file name will be \"web.config\" placed in Web project location." );
@@ -104,8 +102,16 @@ namespace Microsoft.ConnectTheDots.CloudDeploy.CreateWebConfig
                 }
             }
 */
-            result.SBNamespace = result.NamePrefix + "-ns";
+            result.NamePrefix = selectedNamespace.Name;
+            if( result.NamePrefix.EndsWith( "-ns") )
+            {
+                result.NamePrefix = result.NamePrefix.Substring( 0, result.NamePrefix.Length - 3 );
+            }
+
+            result.SBNamespace = selectedNamespace.Name;
             result.StorageAccountName = result.NamePrefix.ToLowerInvariant( ) + "storage";
+
+            result.Location = selectedNamespace.Region;
 
             result.EventHubNameDevices = "ehdevices";
             result.EventHubNameAlerts = "ehalerts";

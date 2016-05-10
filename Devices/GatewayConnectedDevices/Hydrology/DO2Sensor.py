@@ -1,4 +1,4 @@
-'''
+﻿'''
  Copyright (c) Microsoft Open Technologies, Inc.  All rights reserved.
 
  The MIT License (MIT)
@@ -22,35 +22,35 @@ import serial
 import re
 
 class DO2Sensor(object):
-	default_device = '/dev/ttyAMA0'
-	port = serial.Serial()
+    default_device = '/dev/ttyAMA0'
+    port = serial.Serial()
 
-	def __init__(self, device = default_device):
-		# DO2 sensor is on UART because we have the legacy version of the DO2 board
-		self.port = serial.Serial( device,38400,timeout=1, bytesize=8, parity='N', stopbits=1, xonxoff=0, rtscts=0)
+    def __init__(self, device = default_device):
+        # DO2 sensor is on UART because we have the legacy version of the DO2 board
+        self.port = serial.Serial( device,38400,timeout=1, bytesize=8, parity='N', stopbits=1, xonxoff=0, rtscts=0)
 
-	def GetDataSample(self) :
-		# get data command for DO2 sensor board
-		self.port.write('R\r')
-		line = self.port.readline()
-		# occasionally no data is returned
-		while len(line) < 3:
-			self.port.write('R\r')
-			line = self.port.readline()
-		return line;
-	
+    def GetDataSample(self) :
+        # get data command for DO2 sensor board
+        self.port.write('R\r')
+        line = self.port.readline()
+        # occasionally no data is returned
+        while len(line) < 3:
+            self.port.write('R\r')
+            line = self.port.readline()
+        return line;
+
 def main() :
-	device = DO2Sensor()
-	try:
-		while True:
-			DO2Sample = device.GetDataSample()
-			DO2Parsed = re.findall(r"([0-9]+\.[0-9]+)",DO2Sample)
-			if DO2Parsed:
-				print "Dissolved O2 = {0} % ({1} mg/L)".format( DO2Parsed[0], DO2Parsed[1] )
-			else:
-				print "failed to parse:" + DO2Sample
-	except KeyboardInterrupt: # catches the ctrl-c command, which breaks the loop above
-		print("Continuous polling stopped")
+    device = DO2Sensor()
+    try:
+        while True:
+            DO2Sample = device.GetDataSample()
+            DO2Parsed = re.findall(r"([0-9]+\.[0-9]+)",DO2Sample)
+            if DO2Parsed:
+                print "Dissolved O2 = {0} % ({1} mg/L)".format( DO2Parsed[0], DO2Parsed[1] )
+            else:
+                print "failed to parse:" + DO2Sample
+    except KeyboardInterrupt: # catches the ctrl-c command, which breaks the loop above
+        print("Continuous polling stopped")
 
 if __name__ == '__main__':
     main()
